@@ -7,9 +7,6 @@
   - Added the required column `name` to the `applications` table without a default value. This is not possible if the table is not empty.
 
 */
--- AlterEnum
-ALTER TYPE "public"."ApplicationStatus" ADD VALUE 'PENDING';
-
 -- DropForeignKey
 ALTER TABLE "public"."applications" DROP CONSTRAINT "applications_userId_fkey";
 
@@ -43,8 +40,7 @@ ADD COLUMN     "phone" TEXT,
 ADD COLUMN     "publications" TEXT,
 ADD COLUMN     "references" TEXT,
 ADD COLUMN     "researchExperience" TEXT,
-ADD COLUMN     "workExperience" TEXT,
-ALTER COLUMN "status" SET DEFAULT 'PENDING';
+ADD COLUMN     "workExperience" TEXT;
 
 -- AlterTable
 ALTER TABLE "public"."users" ADD COLUMN     "emailVerified" TIMESTAMP(3);
