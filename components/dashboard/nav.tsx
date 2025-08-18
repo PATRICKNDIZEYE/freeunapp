@@ -18,7 +18,8 @@ import {
   LogOut, 
   User,
   Plus,
-  Bell
+  Bell,
+  FileText
 } from 'lucide-react'
 import { Notifications } from '@/components/dashboard/notifications'
 
@@ -45,6 +46,7 @@ export function DashboardNav({ user, notifications = [] }: DashboardNavProps) {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Scholarships', href: '/dashboard/scholarships', icon: GraduationCap },
+    { name: 'Applications', href: '/dashboard/applications', icon: FileText },
     { name: 'Users', href: '/dashboard/users', icon: Users },
     { name: 'Profile', href: '/dashboard/profile', icon: Settings },
   ]
