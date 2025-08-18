@@ -7,12 +7,12 @@ async function main() {
   console.log('🌱 Starting database seed...')
 
   // Create admin user
-  const adminPassword = await hash('admin123', 12)
+  const adminPassword = await hash('FreeUnApp@2025', 12)
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@freeunapp.com' },
+    where: { email: 'admin@freeunapp.org' },
     update: {},
     create: {
-      email: 'admin@freeunapp.com',
+      email: 'admin@freeunapp.org',
       name: 'Admin User',
       password: adminPassword,
       role: 'ADMIN',
