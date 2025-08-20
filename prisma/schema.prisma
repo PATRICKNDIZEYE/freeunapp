@@ -20,6 +20,10 @@ model User {
   approved          Boolean  @default(false)
   profileComplete   Boolean  @default(false)
   preferences       Json?
+  // Field of study for notifications
+  fieldOfStudy      String?
+  degreeLevel       String?
+  notificationPreferences Json? // Store notification settings
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
