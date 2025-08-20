@@ -198,13 +198,24 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
       {/* Scholarships Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredScholarships.map((scholarship) => (
-          <Card key={scholarship.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <CardTitle className="text-lg font-semibold line-clamp-2">
+          <Card key={scholarship.id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 group overflow-hidden relative">
+            {/* Header with Icon and Title */}
+            <div className="p-6 pb-4">
+              <div className="flex items-start gap-4">
+                {/* Scholarship Icon */}
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-brand-blue to-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">
+                      {scholarship.title.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Title and Status */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-brand-blue transition-colors">
                     {scholarship.title}
-                  </CardTitle>
+                  </h3>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge className={getStatusColor(scholarship.status)}>
                       {scholarship.status}
@@ -214,9 +225,11 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                     </Badge>
                   </div>
                 </div>
+
+                {/* Admin Actions Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -240,41 +253,83 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              <p className="text-gray-600 text-sm line-clamp-2">
-                {scholarship.description}
-              </p>
-              
-              <div className="flex items-center justify-between text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <DollarSign className="h-4 w-4" />
+            </div>
+
+            {/* Key Details Section */}
+            <div className="px-6 pb-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <DollarSign className="h-4 w-4 text-brand-blue" />
                   <span className="font-medium">{scholarship.amount}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  <span>{scholarship._count.applications} apps</span>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Calendar className="h-4 w-4 text-brand-blue" />
+                  <span className="font-medium">
+                    {new Date(scholarship.deadline).toLocaleDateString('en-US', { 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </span>
                 </div>
               </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Calendar className="h-4 w-4" />
-                  <span>Due: {new Date(scholarship.deadline).toLocaleDateString()}</span>
+            </div>
+
+            {/* Description */}
+            <div className="px-6 pb-4">
+              <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                {scholarship.description}
+              </p>
+            </div>
+
+            {/* Stats and Admin Info */}
+            <div className="px-6 pb-4">
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    <span>{scholarship._count.applications} apps</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span>{scholarship.views} views</span>
+                  </div>
                 </div>
-                <div className="text-gray-400">
-                  {scholarship.views} views
+                <span className="text-xs">{scholarship.degreeLevel}</span>
+              </div>
+            </div>
+
+            {/* Footer with Admin Info */}
+            <div className="px-6 pb-6">
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-gray-500">
+                  By: {scholarship.admin.name || scholarship.admin.email}
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                  >
+                    <Link href={`/dashboard/scholarships/${scholarship.id}`}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                  >
+                    <Link href={`/dashboard/scholarships/${scholarship.id}/edit`}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Link>
+                  </Button>
                 </div>
               </div>
-              
-              <div className="pt-2 border-t border-gray-100">
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>By: {scholarship.admin.name || scholarship.admin.email}</span>
-                  <span>{scholarship.degreeLevel}</span>
-                </div>
-              </div>
-            </CardContent>
+            </div>
           </Card>
         ))}
       </div>

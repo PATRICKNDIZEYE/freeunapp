@@ -116,87 +116,106 @@ export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {scholarships.slice(0, 6).map((scholarship) => (
-          <Card key={scholarship.id} className="hover:shadow-lg transition-shadow group">
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg font-semibold line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
-                    {scholarship.title}
-                  </CardTitle>
-                  
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <Badge className={getAmountColor(scholarship.amountType)}>
-                      {scholarship.amountType === 'FULL' ? 'Full Tuition' : 
-                       scholarship.amountType === 'PARTIAL' ? 'Partial' : 
-                       scholarship.amountType === 'CUSTOM' ? scholarship.amount : scholarship.amountType}
-                    </Badge>
-                    <Badge className={getCategoryColor(scholarship.category)}>
-                      {scholarship.category.replace('_', ' ')}
-                    </Badge>
-                    <Badge variant="outline">
-                      {scholarship.degreeLevel}
-                    </Badge>
+          <Card key={scholarship.id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 group overflow-hidden">
+            {/* Header with Icon and Title */}
+            <div className="p-6 pb-4">
+              <div className="flex items-start gap-4">
+                {/* Scholarship Icon */}
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-brand-blue to-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">
+                      {scholarship.title.charAt(0).toUpperCase()}
+                    </span>
                   </div>
                 </div>
+                
+                {/* Title */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-brand-blue transition-colors">
+                    {scholarship.title}
+                  </h3>
+                </div>
+              </div>
+            </div>
 
-                <div className="flex flex-col gap-2 ml-2">
+            {/* Key Details Section */}
+            <div className="px-6 pb-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <DollarSign className="h-4 w-4 text-brand-blue" />
+                  <span className="font-medium">{scholarship.amount}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Calendar className="h-4 w-4 text-brand-blue" />
+                  <span className={`font-medium ${isDeadlineExpired(scholarship.deadline) ? 'text-red-600' : ''}`}>
+                    {new Date(scholarship.deadline).toLocaleDateString('en-US', { 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="px-6 pb-4">
+              <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                {scholarship.description}
+              </p>
+            </div>
+
+            {/* Tags/Badges */}
+            <div className="px-6 pb-4">
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                  {scholarship.category.replace('_', ' ')}
+                </span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                  {scholarship.degreeLevel}
+                </span>
+              </div>
+            </div>
+
+            {/* Footer with Actions */}
+            <div className="px-6 pb-6">
+              <div className="flex items-center justify-between">
+                {/* Action Icons */}
+                <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleShare(scholarship)}
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-green-500"
+                    className="h-8 w-8 p-0 text-gray-400 hover:text-brand-blue transition-colors"
                   >
-                    <Share2 className="h-4 w-4" />
+                    <Heart className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-gray-400 hover:text-brand-blue transition-colors"
+                  >
+                    <Bookmark className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </CardHeader>
 
-            <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600 line-clamp-3">
-                {scholarship.description}
-              </p>
-              
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="flex items-center gap-2 text-gray-500">
-                  <DollarSign className="h-4 w-4" />
-                  <span>{scholarship.amount}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-500">
-                  <GraduationCap className="h-4 w-4" />
-                  <span>{scholarship.degreeLevel}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Calendar className="h-4 w-4" />
-                  <span className={isDeadlineExpired(scholarship.deadline) ? 'text-red-600' : ''}>
-                    {new Date(scholarship.deadline).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Users className="h-4 w-4" />
-                  <span>{scholarship._count.applications} applications</span>
-                </div>
-              </div>
-
-              {/* Deadline Warning */}
-              {isDeadlineExpired(scholarship.deadline) && (
-                <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
-                  ❌ Deadline passed
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
+                {/* Apply Button */}
                 <Button 
-                  variant="outline"
-                  className="flex-1"
                   onClick={() => handleViewDetails(scholarship)}
+                  className="bg-brand-blue hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
                 >
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Details
+                  Apply Now
                 </Button>
               </div>
-            </CardContent>
+            </div>
+
+            {/* Deadline Warning Overlay */}
+            {isDeadlineExpired(scholarship.deadline) && (
+              <div className="absolute top-4 right-4">
+                <div className="bg-red-100 border border-red-200 rounded-full px-2 py-1 text-xs text-red-800 font-medium">
+                  Expired
+                </div>
+              </div>
+            )}
           </Card>
         ))}
       </div>
