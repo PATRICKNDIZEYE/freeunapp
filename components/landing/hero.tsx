@@ -8,31 +8,26 @@ import { Search, ArrowRight, GraduationCap } from 'lucide-react'
 export function Hero() {
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue via-primary-800 to-primary-900 text-white">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
+      <div className="absolute inset-0 bg-opacity-20 bg-white"></div>
       
       <div className="relative container mx-auto px-4 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
               <GraduationCap className="h-12 w-12 text-white" />
             </div>
           </div>
 
-          {/* Main Heading */}
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
             Discover Your Perfect
             <span className="block text-white/90">Scholarship</span>
           </h1>
           
-          {/* Subtitle */}
           <p className="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed">
             Connect with thousands of scholarship opportunities worldwide. 
             Your journey to free education starts here.
           </p>
 
-          {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-8">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -43,7 +38,6 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link href="/scholarships">
               <Button className="bg-white text-brand-blue hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
@@ -59,7 +53,6 @@ export function Hero() {
             </Link>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
             <div className="text-center">
               <div className="text-2xl md:text-3xl font-bold mb-1">5K+</div>
@@ -79,7 +72,6 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Trust Badge */}
           <div className="mt-12 pt-8 border-t border-white/20">
             <p className="text-white/60 text-sm">
               Trusted by Students Worldwide

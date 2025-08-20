@@ -1,55 +1,49 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
-import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogTrigger 
-} from '@/components/ui/dialog'
-import { 
-  Heart, 
-  Share2, 
-  Send, 
   Calendar, 
   DollarSign, 
   GraduationCap, 
-  MapPin,
+  Heart,
+  Share2,
   Eye,
-  Bookmark,
-  CheckCircle,
-  ExternalLink
+  Clock,
+  Users
 } from 'lucide-react'
-import { ScholarshipDetails } from './scholarship-details'
+import { ScholarshipDetail } from './scholarship-detail'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 interface Scholarship {
   id: string
   title: string
   description: string
+  detailedDescription: string | null
+  logoUrl: string | null
+  referenceUrl: string | null
+  eligibilityCriteria: string | null
+  applicationProcess: string | null
+  qualificationBasis: string | null
+  awardsAvailable: number | null
   amount: string
   amountType: string
   category: string
   degreeLevel: string
-  deadline: Date | null
-  country: string | null
-  detailedDescription: string | null
-  eligibilityCriteria: string | null
-  applicationProcess: string | null
+  deadline: Date
   contactInfo: string | null
-  referenceUrl: string | null
+  status: string
+  approvalStatus: string
+  views: number
   createdAt: Date
   admin: {
     name: string | null
   }
   _count: {
-    applications: number
     savedBy: number
+    applications: number
   }
 }
 
@@ -58,59 +52,12 @@ interface ScholarshipsListProps {
 }
 
 export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
-  const { data: session } = useSession()
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null)
-  const [savedScholarships, setSavedScholarships] = useState<Set<string>>(new Set())
-  const [appliedScholarships, setAppliedScholarships] = useState<Set<string>>(new Set())
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
 
-  const handleSave = async (scholarshipId: string) => {
-    if (!session) {
-      // Redirect to login or show login modal
-      return
-    }
-
-    try {
-      const response = await fetch('/api/scholarships/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scholarshipId })
-      })
-
-      if (response.ok) {
-        setSavedScholarships(prev => {
-          const newSet = new Set(prev)
-          if (newSet.has(scholarshipId)) {
-            newSet.delete(scholarshipId)
-          } else {
-            newSet.add(scholarshipId)
-          }
-          return newSet
-        })
-      }
-    } catch (error) {
-      console.error('Error saving scholarship:', error)
-    }
-  }
-
-  const handleApply = async (scholarshipId: string) => {
-    if (!session) {
-      // Redirect to login or show login modal
-      return
-    }
-
-    try {
-      const response = await fetch('/api/scholarships/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scholarshipId })
-      })
-
-      if (response.ok) {
-        setAppliedScholarships(prev => new Set(prev).add(scholarshipId))
-      }
-    } catch (error) {
-      console.error('Error applying to scholarship:', error)
-    }
+  const handleViewDetails = (scholarship: Scholarship) => {
+    setSelectedScholarship(scholarship)
+    setIsDetailOpen(true)
   }
 
   const handleShare = (scholarship: Scholarship) => {
@@ -138,8 +85,11 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
     }
   }
 
-  const isDeadlineNear = (deadline: Date | null) => {
-    if (!deadline) return false
+  const isDeadlineExpired = (deadline: Date) => {
+    return new Date(deadline) < new Date()
+  }
+
+  const isDeadlineNear = (deadline: Date) => {
     const now = new Date()
     const deadlineDate = new Date(deadline)
     const diffTime = deadlineDate.getTime() - now.getTime()
@@ -147,35 +97,28 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
     return diffDays <= 30 && diffDays > 0
   }
 
-  const isDeadlineExpired = (deadline: Date | null) => {
-    if (!deadline) return false
-    return new Date(deadline) < new Date()
-  }
-
   if (scholarships.length === 0) {
     return (
       <div className="text-center py-12">
         <GraduationCap className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No scholarships found</h3>
-        <p className="text-gray-500">Try adjusting your search or filters</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Scholarships Found</h3>
+        <p className="text-gray-600">Try adjusting your search criteria or check back later for new opportunities.</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Scholarships Grid */}
+    <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {scholarships.map((scholarship) => (
-          <Card key={scholarship.id} className="hover:shadow-lg transition-all duration-200 group">
+          <Card key={scholarship.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg font-semibold line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+                  <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
                     {scholarship.title}
                   </CardTitle>
                   
-                  {/* Badges */}
                   <div className="flex flex-wrap gap-2 mb-3">
                     <Badge className={getAmountColor(scholarship.amountType)}>
                       {scholarship.amountType === 'FULL' ? 'Full Tuition' : 
@@ -190,138 +133,87 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                     </Badge>
                   </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col gap-2 ml-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSave(scholarship.id)}
-                    className={`h-8 w-8 p-0 ${savedScholarships.has(scholarship.id) ? 'text-red-500' : 'text-gray-400'}`}
-                  >
-                    <Heart className={`h-4 w-4 ${savedScholarships.has(scholarship.id) ? 'fill-current' : ''}`} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleShare(scholarship)}
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-green-500"
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
             </CardHeader>
 
             <CardContent className="space-y-4">
-              {/* Description */}
               <p className="text-sm text-gray-600 line-clamp-3">
                 {scholarship.description}
               </p>
-
-              {/* Info Grid */}
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="flex items-center gap-2 text-gray-500">
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
                   <DollarSign className="h-4 w-4" />
-                  <span>{scholarship.amount}</span>
+                  <span className="font-semibold">{scholarship.amount}</span>
                 </div>
-                <div className="flex items-center gap-2 text-gray-500">
+                <div className="flex items-center gap-2 text-gray-600">
                   <GraduationCap className="h-4 w-4" />
                   <span>{scholarship.degreeLevel}</span>
                 </div>
-                {scholarship.country && (
-                  <div className="flex items-center gap-2 text-gray-500">
-                    <MapPin className="h-4 w-4" />
-                    <span>{scholarship.country}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-gray-500">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Users className="h-4 w-4" />
+                  <span>{scholarship._count.applications} applications</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Heart className="h-4 w-4" />
+                  <span>{scholarship._count.savedBy} saved</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Calendar className="h-4 w-4" />
-                  <span>
-                    {scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'TBD'}
+                  <span className={isDeadlineExpired(scholarship.deadline) ? 'text-red-600' : ''}>
+                    {new Date(scholarship.deadline).toLocaleDateString()}
                   </span>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleShare(scholarship)}
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewDetails(scholarship)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
               {/* Deadline Warning */}
-              {isDeadlineNear(scholarship.deadline) && (
-                <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-xs text-yellow-800">
-                    ⚠️ Deadline approaching soon!
-                  </p>
+              {isDeadlineNear(scholarship.deadline) && !isDeadlineExpired(scholarship.deadline) && (
+                <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+                  ⚠️ Deadline approaching
                 </div>
               )}
 
               {isDeadlineExpired(scholarship.deadline) && (
-                <div className="p-2 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-xs text-red-800">
-                    ❌ Application deadline has passed
-                  </p>
+                <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+                  ❌ Deadline passed
                 </div>
               )}
-
-              {/* Stats */}
-              <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t">
-                <span>{scholarship._count.applications} applications</span>
-                <span>{scholarship._count.savedBy} saved</span>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
-                <Link href={`/scholarships/${scholarship.id}`}>
-                  <Button 
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Details
-                  </Button>
-                </Link>
-
-                {!isDeadlineExpired(scholarship.deadline) && (
-                  <Button 
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
-                    onClick={() => handleApply(scholarship.id)}
-                    disabled={appliedScholarships.has(scholarship.id)}
-                  >
-                    {appliedScholarships.has(scholarship.id) ? (
-                      <>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Applied
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4 mr-2" />
-                        Apply Now
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* You May Also Like Section */}
-      {scholarships.length > 0 && (
-        <div className="mt-12">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6">You May Also Like</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {scholarships.slice(0, 4).map((scholarship) => (
-              <Card key={scholarship.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4">
-                  <h4 className="font-medium text-sm line-clamp-2 mb-2">{scholarship.title}</h4>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{scholarship.amount}</span>
-                    <span>{scholarship.category.replace('_', ' ')}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Scholarship Detail Modal */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {selectedScholarship && (
+            <ScholarshipDetail 
+              scholarship={selectedScholarship}
+              user={null}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

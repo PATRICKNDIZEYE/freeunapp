@@ -91,8 +91,10 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'APPLIED': return 'bg-yellow-100 text-yellow-800'
-      case 'APPROVED': return 'bg-green-100 text-green-800'
+      case 'ACCEPTED': return 'bg-green-100 text-green-800'
       case 'REJECTED': return 'bg-red-100 text-red-800'
+      case 'UNDER_REVIEW': return 'bg-blue-100 text-blue-800'
+      case 'WAITLISTED': return 'bg-purple-100 text-purple-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -100,8 +102,10 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'APPLIED': return <Clock className="h-4 w-4" />
-      case 'APPROVED': return <CheckCircle className="h-4 w-4" />
+      case 'ACCEPTED': return <CheckCircle className="h-4 w-4" />
       case 'REJECTED': return <XCircle className="h-4 w-4" />
+      case 'UNDER_REVIEW': return <Eye className="h-4 w-4" />
+      case 'WAITLISTED': return <Clock className="h-4 w-4" />
       default: return <Clock className="h-4 w-4" />
     }
   }
@@ -190,9 +194,9 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleStatusUpdate(application.id, 'APPROVED')}>
+                    <DropdownMenuItem onClick={() => handleStatusUpdate(application.id, 'ACCEPTED')}>
                       <CheckCircle className="h-4 w-4 mr-2" />
-                      Approve
+                      Accept
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleStatusUpdate(application.id, 'REJECTED')}>
                       <XCircle className="h-4 w-4 mr-2" />

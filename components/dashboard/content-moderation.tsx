@@ -38,7 +38,7 @@ interface Scholarship {
 interface Resource {
   id: string
   title: string
-  description: string
+  description: string | null
   fileUrl: string
   createdAt: Date
   admin: {
