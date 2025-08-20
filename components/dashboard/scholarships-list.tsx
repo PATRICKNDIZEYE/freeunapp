@@ -52,12 +52,16 @@ interface ScholarshipsListProps {
 export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [degreeLevelFilter, setDegreeLevelFilter] = useState('all')
 
   const filteredScholarships = scholarships.filter(scholarship => {
     const matchesSearch = scholarship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          scholarship.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || scholarship.status === statusFilter
-    return matchesSearch && matchesStatus
+    const matchesCategory = categoryFilter === 'all' || scholarship.category === categoryFilter
+    const matchesDegreeLevel = degreeLevelFilter === 'all' || scholarship.degreeLevel === degreeLevelFilter
+    return matchesSearch && matchesStatus && matchesCategory && matchesDegreeLevel
   })
 
   const getStatusColor = (status: string) => {
@@ -97,7 +101,7 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
               <Filter className="h-4 w-4" />
-              Filter
+              Status
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -113,8 +117,82 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
             <DropdownMenuItem onClick={() => setStatusFilter('EXPIRED')}>
               Expired
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter('PAUSED')}>
+              Paused
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Category
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setCategoryFilter('all')}>
+              All Categories
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('COMPUTER_SCIENCE')}>
+              Computer Science
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('ENGINEERING')}>
+              Engineering
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('MEDICINE')}>
+              Medicine
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('BUSINESS')}>
+              Business
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('ARTS')}>
+              Arts
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('SCIENCE')}>
+              Science
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Degree Level
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setDegreeLevelFilter('all')}>
+              All Levels
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDegreeLevelFilter('BACHELORS')}>
+              Bachelor's
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDegreeLevelFilter('MASTERS')}>
+              Master's
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDegreeLevelFilter('PHD')}>
+              PhD
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDegreeLevelFilter('DIPLOMA')}>
+              Diploma
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDegreeLevelFilter('CERTIFICATE')}>
+              Certificate
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Results Count */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {filteredScholarships.length} Scholarship{filteredScholarships.length !== 1 ? 's' : ''} Found
+        </h2>
+        {(searchTerm || statusFilter !== 'all' || categoryFilter !== 'all' || degreeLevelFilter !== 'all') && (
+          <div className="text-sm text-gray-500">
+            Filtered results
+          </div>
+        )}
       </div>
 
       {/* Scholarships Grid */}

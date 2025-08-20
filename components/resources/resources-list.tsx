@@ -1,9 +1,25 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Download, Calendar, User, Eye } from 'lucide-react'
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu'
+import { 
+  Search, 
+  Filter, 
+  FileText, 
+  Download, 
+  Calendar, 
+  User, 
+  Eye 
+} from 'lucide-react'
 
 interface Resource {
   id: string
@@ -23,6 +39,22 @@ interface ResourcesListProps {
 }
 
 export function ResourcesList({ resources }: ResourcesListProps) {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
+
+  const filteredResources = resources.filter(resource => {
+    const matchesSearch = 
+      resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (resource.description && resource.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      resource.category.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesCategory = categoryFilter === 'all' || resource.category === categoryFilter
+    const matchesType = typeFilter === 'all' || resource.type.toLowerCase() === typeFilter.toLowerCase()
+    
+    return matchesSearch && matchesCategory && matchesType
+  })
+
   const handleDownload = async (resourceId: string, fileUrl: string) => {
     try {
       // Update download count
@@ -67,6 +99,18 @@ export function ResourcesList({ resources }: ResourcesListProps) {
     }
   }
 
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'APPLICATION_GUIDE': return 'bg-green-100 text-green-800'
+      case 'ESSAY_TEMPLATE': return 'bg-blue-100 text-blue-800'
+      case 'RESUME_TEMPLATE': return 'bg-purple-100 text-purple-800'
+      case 'REFERENCE_LETTER': return 'bg-yellow-100 text-yellow-800'
+      case 'STUDY_MATERIAL': return 'bg-indigo-100 text-indigo-800'
+      case 'INTERVIEW_PREP': return 'bg-pink-100 text-pink-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
   if (resources.length === 0) {
     return (
       <div className="text-center py-12">
@@ -79,15 +123,104 @@ export function ResourcesList({ resources }: ResourcesListProps) {
 
   return (
     <div className="space-y-6">
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search resources..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Category
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setCategoryFilter('all')}>
+              All Categories
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('APPLICATION_GUIDE')}>
+              Application Guide
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('ESSAY_TEMPLATE')}>
+              Essay Template
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('RESUME_TEMPLATE')}>
+              Resume Template
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('REFERENCE_LETTER')}>
+              Reference Letter
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('STUDY_MATERIAL')}>
+              Study Material
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setCategoryFilter('INTERVIEW_PREP')}>
+              Interview Prep
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Type
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setTypeFilter('all')}>
+              All Types
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter('pdf')}>
+              PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter('doc')}>
+              DOC
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter('docx')}>
+              DOCX
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter('ppt')}>
+              PPT
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter('pptx')}>
+              PPTX
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Results Count */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {filteredResources.length} Resource{filteredResources.length !== 1 ? 's' : ''} Found
+        </h2>
+        {(searchTerm || categoryFilter !== 'all' || typeFilter !== 'all') && (
+          <div className="text-sm text-gray-500">
+            Filtered results
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {resources.map((resource) => (
+        {filteredResources.map((resource) => (
           <Card key={resource.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <CardTitle className="text-lg line-clamp-2">{resource.title}</CardTitle>
-                <Badge className={getFileTypeColor(resource.type)}>
-                  {resource.type.toUpperCase()}
-                </Badge>
+                <div className="flex gap-1">
+                  <Badge className={getCategoryColor(resource.category)}>
+                    {resource.category.replace('_', ' ')}
+                  </Badge>
+                  <Badge className={getFileTypeColor(resource.type)}>
+                    {resource.type.toUpperCase()}
+                  </Badge>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -125,6 +258,14 @@ export function ResourcesList({ resources }: ResourcesListProps) {
           </Card>
         ))}
       </div>
+
+      {filteredResources.length === 0 && (
+        <div className="text-center py-12">
+          <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Resources Found</h3>
+          <p className="text-gray-600">Try adjusting your search criteria or filters.</p>
+        </div>
+      )}
     </div>
   )
 }

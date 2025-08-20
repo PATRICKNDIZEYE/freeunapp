@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,6 +21,16 @@ import {
   BookOpen
 } from 'lucide-react'
 
+interface Scholarship {
+  id: string
+  title: string
+  description: string
+  category: string
+  degreeLevel: string
+  amount: string
+  deadline: Date
+}
+
 export function ScholarshipFilters() {
   const router = useRouter()
   const [filters, setFilters] = useState({
@@ -30,6 +40,10 @@ export function ScholarshipFilters() {
     amountType: '',
     deadline: ''
   })
+  const [suggestions, setSuggestions] = useState<Scholarship[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }))
@@ -47,6 +61,77 @@ export function ScholarshipFilters() {
 
   const handleViewAll = () => {
     router.push('/scholarships')
+  }
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      category: 'all',
+      degreeLevel: 'all',
+      amountType: 'all',
+      deadline: 'all'
+    })
+  }
+
+  // Fetch suggestions for search
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (filters.search.length < 2) {
+        setSuggestions([])
+        return
+      }
+
+      setIsLoading(true)
+      try {
+        const response = await fetch(`/api/scholarships?search=${encodeURIComponent(filters.search)}&limit=3`)
+        if (response.ok) {
+          const data = await response.json()
+          setSuggestions(data.scholarships || [])
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300)
+    return () => clearTimeout(debounceTimer)
+  }, [filters.search])
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleSuggestionClick = (scholarship: Scholarship) => {
+    router.push(`/scholarships/${scholarship.id}`)
+    setShowSuggestions(false)
+    setFilters(prev => ({ ...prev, search: '' }))
+  }
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'COMPUTER_SCIENCE': return 'bg-blue-100 text-blue-800'
+      case 'ENGINEERING': return 'bg-purple-100 text-purple-800'
+      case 'MEDICINE': return 'bg-red-100 text-red-800'
+      case 'BUSINESS': return 'bg-green-100 text-green-800'
+      case 'ARTS': return 'bg-pink-100 text-pink-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const formatAmount = (amount: string) => {
+    if (amount.includes('Full')) return 'Full Tuition'
+    if (amount.includes('Partial')) return 'Partial Funding'
+    return amount
   }
 
   return (
@@ -68,14 +153,60 @@ export function ScholarshipFilters() {
             <CardContent className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 {/* Search */}
-                <div className="relative">
+                <div className="relative" ref={searchRef}>
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Search scholarships..."
                     value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    onChange={(e) => {
+                      handleFilterChange('search', e.target.value)
+                      setShowSuggestions(true)
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
                     className="pl-10"
                   />
+                  
+                  {/* Search Suggestions */}
+                  {showSuggestions && (filters.search.length >= 2 || suggestions.length > 0) && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-y-auto z-50">
+                      {isLoading ? (
+                        <div className="p-4 text-center text-gray-500">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand-blue mx-auto"></div>
+                          <p className="text-sm mt-2">Searching...</p>
+                        </div>
+                      ) : suggestions.length > 0 ? (
+                        <div className="py-1">
+                          {suggestions.map((scholarship) => (
+                            <div
+                              key={scholarship.id}
+                              onClick={() => handleSuggestionClick(scholarship)}
+                              className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                            >
+                              <div className="text-gray-900 font-medium">
+                                {scholarship.title}
+                              </div>
+                              <div className="text-sm text-gray-500 mt-1">
+                                {scholarship.category.replace('_', ' ')} • {scholarship.degreeLevel} • {formatAmount(scholarship.amount)}
+                              </div>
+                            </div>
+                          ))}
+                          <div className="border-t border-gray-100">
+                            <button
+                              onClick={handleSearch}
+                              className="w-full text-left px-4 py-3 text-brand-blue hover:bg-gray-50 font-medium text-sm"
+                            >
+                              View all results for "{filters.search}"
+                            </button>
+                          </div>
+                        </div>
+                      ) : filters.search.length >= 2 ? (
+                        <div className="p-4 text-center text-gray-500">
+                          <p className="text-sm">No scholarships found for "{filters.search}"</p>
+                          <p className="text-xs mt-1 text-gray-400">Try different keywords</p>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
 
                 {/* Field of Study */}
@@ -173,6 +304,14 @@ export function ScholarshipFilters() {
                   className="flex-1"
                 >
                   View All Scholarships
+                </Button>
+                <Button 
+                  onClick={clearFilters}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={Object.values(filters).every(value => value === '' || value === 'all')}
+                >
+                  Clear Filters
                 </Button>
               </div>
             </CardContent>

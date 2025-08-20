@@ -174,7 +174,7 @@ export function Navigation() {
                   Sign In
                 </Button>
                 <Button
-                  className="w-full bg-brand-blue hover:bg-blue-700"
+                  className="w-full bg-brand-blue text-['#fff'] hover:bg-blue-700"
                   onClick={() => {
                     router.push('/auth/signup')
                     setIsMenuOpen(false)

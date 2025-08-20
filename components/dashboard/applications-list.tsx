@@ -75,6 +75,7 @@ interface ApplicationsListProps {
 export function ApplicationsList({ applications }: ApplicationsListProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [scholarshipFilter, setScholarshipFilter] = useState('all')
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
 
   const filteredApplications = applications.filter(application => {
@@ -84,8 +85,9 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
       application.scholarship.title.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesStatus = statusFilter === 'all' || application.status === statusFilter
+    const matchesScholarship = scholarshipFilter === 'all' || application.scholarship.title === scholarshipFilter
     
-    return matchesSearch && matchesStatus
+    return matchesSearch && matchesStatus && matchesScholarship
   })
 
   const getStatusColor = (status: string) => {
@@ -152,16 +154,52 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
               All Status
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setStatusFilter('APPLIED')}>
-              Pending Review
+              Applied
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('APPROVED')}>
-              Approved
+            <DropdownMenuItem onClick={() => setStatusFilter('UNDER_REVIEW')}>
+              Under Review
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter('ACCEPTED')}>
+              Accepted
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setStatusFilter('REJECTED')}>
               Rejected
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter('WAITLISTED')}>
+              Waitlisted
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Scholarship
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setScholarshipFilter('all')}>
+              All Scholarships
+            </DropdownMenuItem>
+            {Array.from(new Set(applications.map(app => app.scholarship.title))).map(title => (
+              <DropdownMenuItem key={title} onClick={() => setScholarshipFilter(title)}>
+                {title}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Results Count */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {filteredApplications.length} Application{filteredApplications.length !== 1 ? 's' : ''} Found
+        </h2>
+        {(searchTerm || statusFilter !== 'all' || scholarshipFilter !== 'all') && (
+          <div className="text-sm text-gray-500">
+            Filtered results
+          </div>
+        )}
       </div>
 
       {/* Applications Grid */}

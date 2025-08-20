@@ -48,6 +48,7 @@ export function UsersList({ users }: UsersListProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [profileFilter, setProfileFilter] = useState('all')
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,7 +57,10 @@ export function UsersList({ users }: UsersListProps) {
     const matchesStatus = statusFilter === 'all' || 
                          (statusFilter === 'approved' && user.approved) ||
                          (statusFilter === 'pending' && !user.approved)
-    return matchesSearch && matchesRole && matchesStatus
+    const matchesProfile = profileFilter === 'all' || 
+                          (profileFilter === 'complete' && user.profileComplete) ||
+                          (profileFilter === 'incomplete' && !user.profileComplete)
+    return matchesSearch && matchesRole && matchesStatus && matchesProfile
   })
 
   const getRoleColor = (role: string) => {
@@ -128,6 +132,37 @@ export function UsersList({ users }: UsersListProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Profile
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setProfileFilter('all')}>
+              All Profiles
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setProfileFilter('complete')}>
+              Complete
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setProfileFilter('incomplete')}>
+              Incomplete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Results Count */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">
+          {filteredUsers.length} User{filteredUsers.length !== 1 ? 's' : ''} Found
+        </h2>
+        {(searchTerm || roleFilter !== 'all' || statusFilter !== 'all' || profileFilter !== 'all') && (
+          <div className="text-sm text-gray-500">
+            Filtered results
+          </div>
+        )}
       </div>
 
       {/* Users Grid */}

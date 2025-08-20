@@ -4,12 +4,21 @@ import { prisma } from '@/lib/prisma'
 import { Navigation } from '@/components/layout/navigation'
 import { Footer } from '@/components/layout/footer'
 import { ResourcesList } from '@/components/resources/resources-list'
+import { ResourcesFilter } from '@/components/resources/resources-filter'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { FileText, Download, Plus } from 'lucide-react'
 import Link from 'next/link'
 
-export default async function ResourcesPage() {
+interface PageProps {
+  searchParams: {
+    search?: string
+    category?: string
+    type?: string
+  }
+}
+
+export default async function ResourcesPage({ searchParams }: PageProps) {
   const session = await getServerSession(authOptions)
   
   const [resources, stats] = await Promise.all([
@@ -31,6 +40,30 @@ export default async function ResourcesPage() {
   ])
 
   const [totalResources] = stats
+
+  // Apply filters
+  let filteredResources = resources
+
+  if (searchParams.search) {
+    const searchTerm = searchParams.search.toLowerCase()
+    filteredResources = filteredResources.filter(resource =>
+      resource.title.toLowerCase().includes(searchTerm) ||
+      (resource.description && resource.description.toLowerCase().includes(searchTerm)) ||
+      resource.category.toLowerCase().includes(searchTerm)
+    )
+  }
+
+  if (searchParams.category && searchParams.category !== 'all') {
+    filteredResources = filteredResources.filter(resource =>
+      resource.category === searchParams.category
+    )
+  }
+
+  if (searchParams.type && searchParams.type !== 'all') {
+    filteredResources = filteredResources.filter(resource =>
+      resource.type.toLowerCase() === searchParams.type!.toLowerCase()
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -84,8 +117,27 @@ export default async function ResourcesPage() {
           </div>
         )}
 
+        {/* Filters */}
+        <div className="mb-8">
+          <ResourcesFilter />
+        </div>
+
+        {/* Results */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {filteredResources.length} Resource{filteredResources.length !== 1 ? 's' : ''} Found
+            </h2>
+            {Object.keys(searchParams).length > 0 && (
+              <div className="text-sm text-gray-500">
+                Filtered results
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Resources List */}
-        <ResourcesList resources={resources} />
+        <ResourcesList resources={filteredResources} />
       </div>
       <Footer />
     </div>

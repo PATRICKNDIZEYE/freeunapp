@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/footer'
 import { ScholarshipFilters } from '@/components/landing/scholarship-filters'
 import { MarketingSignup } from '@/components/landing/marketing-signup'
 import { OnboardingCard } from '@/components/landing/onboarding-card'
+import { Navigation } from '@/components/layout/navigation'
 
 export default async function HomePage() {
   // Fetch real data from database
@@ -48,6 +49,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Navigation />
       <Hero />
       <ScholarshipFilters />
       <Stats 
