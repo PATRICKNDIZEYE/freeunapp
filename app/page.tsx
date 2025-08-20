@@ -4,6 +4,7 @@ import { Stats } from '@/components/landing/stats'
 import { FeaturedScholarships } from '@/components/landing/featured-scholarships'
 import { Footer } from '@/components/layout/footer'
 import { ScholarshipFilters } from '@/components/landing/scholarship-filters'
+import { MarketingSignup } from '@/components/landing/marketing-signup'
 
 export default async function HomePage() {
   // Fetch real data from database
@@ -55,6 +56,16 @@ export default async function HomePage() {
         totalAwards={awardsSum._sum.awardsAvailable || 0}
       />
       <FeaturedScholarships scholarships={scholarships} />
+      
+      {/* Marketing Signup Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <MarketingSignup />
+          </div>
+        </div>
+      </section>
+      
       <Footer />
     </div>
   )

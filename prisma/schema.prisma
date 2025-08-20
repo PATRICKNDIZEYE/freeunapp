@@ -141,6 +141,15 @@ model Notification {
   @@map("notifications")
 }
 
+model MarketingSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+
+  @@map("marketing_signups")
+}
+
 model Resource {
   id          String       @id @default(cuid())
   title       String
