@@ -1,67 +1,61 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { 
-  Heart, 
-  Share2, 
-  Send, 
   Calendar, 
   DollarSign, 
   GraduationCap, 
-  MapPin,
+  ExternalLink,
+  Heart,
+  Share2,
+  Users,
+  Eye,
+  Clock,
+  Award,
   BookOpen,
   FileText,
-  ExternalLink,
-  CheckCircle,
-  Award
+  MapPin
 } from 'lucide-react'
 
 interface Scholarship {
   id: string
   title: string
   description: string
+  detailedDescription: string | null
+  logoUrl: string | null
+  referenceUrl: string | null
+  eligibilityCriteria: string | null
+  applicationProcess: string | null
+  qualificationBasis: string | null
+  awardsAvailable: number | null
   amount: string
   amountType: string
   category: string
   degreeLevel: string
-  deadline: Date | null
-  country: string | null
-  detailedDescription: string | null
-  eligibilityCriteria: string | null
-  applicationProcess: string | null
+  deadline: Date
   contactInfo: string | null
-  referenceUrl: string | null
+  status: string
+  approvalStatus: string
+  views: number
   createdAt: Date
   admin: {
     name: string | null
   }
   _count: {
-    applications: number
     savedBy: number
+    applications: number
   }
 }
 
 interface ScholarshipDetailsProps {
   scholarship: Scholarship
-  onSave: () => void
-  onApply: () => void
-  onShare: () => void
-  isSaved: boolean
-  isApplied: boolean
 }
 
-export function ScholarshipDetails({ 
-  scholarship, 
-  onSave, 
-  onApply, 
-  onShare, 
-  isSaved, 
-  isApplied 
+export function ScholarshipDetails({
+  scholarship
 }: ScholarshipDetailsProps) {
-  const [viewMode, setViewMode] = useState<'details' | 'apply'>('details')
-
   const getAmountColor = (amountType: string) => {
     switch (amountType) {
       case 'FULL': return 'bg-green-100 text-green-800'
@@ -81,211 +75,167 @@ export function ScholarshipDetails({
     }
   }
 
-  const isDeadlineExpired = (deadline: Date | null) => {
-    if (!deadline) return false
+  const isDeadlineExpired = (deadline: Date) => {
     return new Date(deadline) < new Date()
   }
 
-  if (viewMode === 'details') {
-    return (
-      <div className="space-y-6">
-        {/* Basic Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-green-600" />
-            <span className="font-semibold">{scholarship.amount}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Award className="h-5 w-5 text-blue-600" />
-            <span>{scholarship._count.applications} applications received</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-red-600" />
-            <span>Deadline: {scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'TBD'}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5 text-purple-600" />
-            <span>{scholarship.degreeLevel}</span>
-          </div>
-        </div>
-
-        {/* Badges */}
-        <div className="flex flex-wrap gap-2">
-          <Badge className={getAmountColor(scholarship.amountType)}>
-            {scholarship.amountType === 'FULL' ? 'Full Tuition' : 
-             scholarship.amountType === 'PARTIAL' ? 'Partial' : 
-             scholarship.amountType === 'CUSTOM' ? scholarship.amount : scholarship.amountType}
-          </Badge>
-          <Badge className={getCategoryColor(scholarship.category)}>
-            {scholarship.category.replace('_', ' ')}
-          </Badge>
-          <Badge variant="outline">
-            {scholarship.degreeLevel}
-          </Badge>
-          {scholarship.country && (
-            <Badge variant="outline">
-              {scholarship.country}
-            </Badge>
-          )}
-        </div>
-
-        {/* Description */}
-        <div>
-          <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            About This Scholarship
-          </h3>
-          <p className="text-gray-700 leading-relaxed">
-            {scholarship.detailedDescription || scholarship.description}
-          </p>
-        </div>
-
-        {/* Eligibility */}
-        {scholarship.eligibilityCriteria && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Eligibility Criteria
-            </h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 whitespace-pre-wrap">
-                {scholarship.eligibilityCriteria}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Application Process */}
-        {scholarship.applicationProcess && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Application Process
-            </h3>
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-gray-700 whitespace-pre-wrap">
-                {scholarship.applicationProcess}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Contact & Links */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {scholarship.contactInfo && (
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Contact Information
-              </h3>
-              <p className="text-gray-700">{scholarship.contactInfo}</p>
-            </div>
-          )}
-          {scholarship.referenceUrl && (
-            <div>
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <ExternalLink className="h-5 w-5" />
-                Official Website
-              </h3>
-              <a 
-                href={scholarship.referenceUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 underline"
-              >
-                Visit Official Website
-              </a>
-            </div>
-          )}
-        </div>
-
-        {/* Stats */}
-        <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t">
-          <span>Posted by: {scholarship.admin.name || 'Admin'}</span>
-          <span>{scholarship._count.savedBy} students saved this</span>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 border-t">
-          <Button 
-            onClick={onSave}
-            variant="outline"
-            className={`flex items-center gap-2 ${isSaved ? 'text-red-500 border-red-500' : ''}`}
-          >
-            <Heart className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
-            {isSaved ? 'Saved' : 'Save for Later'}
-          </Button>
-          
-          <Button 
-            onClick={onShare}
-            variant="outline"
-          >
-            <Share2 className="h-4 w-4 mr-2" />
-            Share via WhatsApp
-          </Button>
-
-          {!isDeadlineExpired(scholarship.deadline) && (
-            <Button 
-              onClick={() => setViewMode('apply')}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-              disabled={isApplied}
-            >
-              {isApplied ? (
-                <>
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Already Applied
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Apply Now
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // Application form view
   return (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-semibold mb-2">Apply for {scholarship.title}</h3>
-        <p className="text-gray-600">Please fill out the application form below</p>
-      </div>
+      {/* About This Scholarship */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            About This Scholarship
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div 
+            className="prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ 
+              __html: scholarship.detailedDescription || scholarship.description 
+            }}
+          />
+        </CardContent>
+      </Card>
 
-      <div className="bg-blue-50 p-4 rounded-lg mb-6">
-        <h4 className="font-semibold text-blue-900 mb-2">Application Requirements:</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Complete personal information</li>
-          <li>• Academic background and achievements</li>
-          <li>• Motivation statement</li>
-          <li>• Supporting documents (if required)</li>
-        </ul>
-      </div>
+      {/* Key Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Key Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-3">
+              <DollarSign className="h-5 w-5 text-green-600" />
+              <div>
+                <p className="text-sm text-gray-600">Amount</p>
+                <p className="font-semibold">{scholarship.amount}</p>
+              </div>
+            </div>
+            
+            {scholarship.awardsAvailable && (
+              <div className="flex items-center gap-3">
+                <Award className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="text-sm text-gray-600">Awards Available</p>
+                  <p className="font-semibold">{scholarship.awardsAvailable}</p>
+                </div>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-3">
+              <Calendar className="h-5 w-5 text-red-600" />
+              <div>
+                <p className="text-sm text-gray-600">Application Deadline</p>
+                <p className="font-semibold">
+                  {scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'TBD'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="text-center">
-        <p className="text-gray-600 mb-4">
-          This will redirect you to the official application portal or contact form.
-        </p>
-        <div className="flex gap-3 justify-center">
-          <Button 
-            onClick={() => setViewMode('details')}
-            variant="outline"
-          >
-            Back to Details
-          </Button>
-          <Button 
-            onClick={onApply}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Send className="h-4 w-4 mr-2" />
-            Start Application
-          </Button>
-        </div>
-      </div>
+      {/* Eligibility Criteria */}
+      {scholarship.eligibilityCriteria && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Eligibility Criteria
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="prose prose-sm max-w-none bg-gray-50 p-4 rounded-lg"
+              dangerouslySetInnerHTML={{ __html: scholarship.eligibilityCriteria }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Application Process */}
+      {scholarship.applicationProcess && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Application Process
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="prose prose-sm max-w-none bg-blue-50 p-4 rounded-lg"
+              dangerouslySetInnerHTML={{ __html: scholarship.applicationProcess }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Contact Information */}
+      {scholarship.contactInfo && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Contact Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{ __html: scholarship.contactInfo }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Official Website */}
+      {scholarship.referenceUrl && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ExternalLink className="h-5 w-5" />
+              Official Website
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <a 
+              href={scholarship.referenceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-brand-blue hover:text-primary-900 underline"
+            >
+              Visit Official Website
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Statistics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">
+                {scholarship._count.applications}
+              </div>
+              <div className="text-sm text-gray-600">Applications</div>
+            </div>
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">
+                {scholarship._count.savedBy}
+              </div>
+              <div className="text-sm text-gray-600">Saved</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

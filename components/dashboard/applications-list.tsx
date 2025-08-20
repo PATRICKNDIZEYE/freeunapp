@@ -235,117 +235,140 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
 
       {/* Application Details Modal */}
       <Dialog open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Application Details - {selectedApplication?.name}</DialogTitle>
-          </DialogHeader>
-          
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-2 border-gray-200 shadow-2xl">
           {selectedApplication && (
-            <div className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold mb-2">Personal Information</h3>
-                  <div className="space-y-2 text-sm">
-                    <p><strong>Name:</strong> {selectedApplication.name}</p>
-                    <p><strong>Email:</strong> {selectedApplication.email}</p>
-                    {selectedApplication.phone && <p><strong>Phone:</strong> {selectedApplication.phone}</p>}
-                    {selectedApplication.nationality && <p><strong>Nationality:</strong> {selectedApplication.nationality}</p>}
-                    {selectedApplication.dateOfBirth && <p><strong>Date of Birth:</strong> {new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>}
+            <div className="p-6">
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold">
+                  Application Details
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-6 mt-6">
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Basic Information</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Name:</strong> {selectedApplication.name}</p>
+                      <p><strong>Email:</strong> {selectedApplication.email}</p>
+                      {selectedApplication.phone && <p><strong>Phone:</strong> {selectedApplication.phone}</p>}
+                      <p><strong>Applied:</strong> {new Date(selectedApplication.appliedAt).toLocaleDateString()}</p>
+                      <p><strong>Status:</strong> 
+                        <Badge className={`ml-2 ${getStatusColor(selectedApplication.status)}`}>
+                          {selectedApplication.status}
+                        </Badge>
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Scholarship Information</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Scholarship:</strong> {selectedApplication.scholarship.title}</p>
+                      <p><strong>Category:</strong> {selectedApplication.scholarship.category}</p>
+                      <p><strong>Degree Level:</strong> {selectedApplication.scholarship.degreeLevel}</p>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Scholarship Information</h3>
-                  <div className="space-y-2 text-sm">
-                    <p><strong>Scholarship:</strong> {selectedApplication.scholarship.title}</p>
-                    <p><strong>Category:</strong> {selectedApplication.scholarship.category}</p>
-                    <p><strong>Degree Level:</strong> {selectedApplication.scholarship.degreeLevel}</p>
-                    <p><strong>Applied:</strong> {new Date(selectedApplication.appliedAt).toLocaleDateString()}</p>
+
+                {/* Personal Information */}
+                {(selectedApplication.dateOfBirth || selectedApplication.nationality) && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
+                    <div className="space-y-2 text-sm">
+                      {selectedApplication.dateOfBirth && <p><strong>Date of Birth:</strong> {new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>}
+                      {selectedApplication.nationality && <p><strong>Nationality:</strong> {selectedApplication.nationality}</p>}
+                    </div>
                   </div>
-                </div>
-              </div>
+                )}
 
-              {/* Academic Information */}
-              {(selectedApplication.currentInstitution || selectedApplication.fieldOfStudy || selectedApplication.gpa) && (
-                <div>
-                  <h3 className="font-semibold mb-2">Academic Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    {selectedApplication.currentInstitution && <p><strong>Current Institution:</strong> {selectedApplication.currentInstitution}</p>}
-                    {selectedApplication.fieldOfStudy && <p><strong>Field of Study:</strong> {selectedApplication.fieldOfStudy}</p>}
-                    {selectedApplication.currentYear && <p><strong>Current Year:</strong> {selectedApplication.currentYear}</p>}
-                    {selectedApplication.gpa && <p><strong>GPA:</strong> {selectedApplication.gpa}</p>}
-                    {selectedApplication.expectedGraduation && <p><strong>Expected Graduation:</strong> {new Date(selectedApplication.expectedGraduation).toLocaleDateString()}</p>}
+                {/* Academic Information */}
+                {(selectedApplication.currentInstitution || selectedApplication.fieldOfStudy || selectedApplication.currentYear || selectedApplication.gpa || selectedApplication.expectedGraduation) && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Academic Information</h3>
+                    <div className="space-y-2 text-sm">
+                      {selectedApplication.currentInstitution && <p><strong>Current Institution:</strong> {selectedApplication.currentInstitution}</p>}
+                      {selectedApplication.fieldOfStudy && <p><strong>Field of Study:</strong> {selectedApplication.fieldOfStudy}</p>}
+                      {selectedApplication.currentYear && <p><strong>Current Year:</strong> {selectedApplication.currentYear}</p>}
+                      {selectedApplication.gpa && <p><strong>GPA:</strong> {selectedApplication.gpa}</p>}
+                      {selectedApplication.expectedGraduation && <p><strong>Expected Graduation:</strong> {new Date(selectedApplication.expectedGraduation).toLocaleDateString()}</p>}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Intended Program */}
-              {(selectedApplication.intendedUniversity || selectedApplication.intendedProgram) && (
-                <div>
-                  <h3 className="font-semibold mb-2">Intended Program</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    {selectedApplication.intendedUniversity && <p><strong>Intended University:</strong> {selectedApplication.intendedUniversity}</p>}
-                    {selectedApplication.intendedProgram && <p><strong>Intended Program:</strong> {selectedApplication.intendedProgram}</p>}
-                    {selectedApplication.intendedCountry && <p><strong>Intended Country:</strong> {selectedApplication.intendedCountry}</p>}
-                    {selectedApplication.financialNeed && <p><strong>Financial Need:</strong> {selectedApplication.financialNeed}</p>}
+                {/* Intended Program */}
+                {(selectedApplication.intendedUniversity || selectedApplication.intendedProgram || selectedApplication.intendedCountry || selectedApplication.financialNeed) && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Intended Program</h3>
+                    <div className="space-y-2 text-sm">
+                      {selectedApplication.intendedUniversity && <p><strong>Intended University:</strong> {selectedApplication.intendedUniversity}</p>}
+                      {selectedApplication.intendedProgram && <p><strong>Intended Program:</strong> {selectedApplication.intendedProgram}</p>}
+                      {selectedApplication.intendedCountry && <p><strong>Intended Country:</strong> {selectedApplication.intendedCountry}</p>}
+                      {selectedApplication.financialNeed && <p><strong>Financial Need:</strong> {selectedApplication.financialNeed}</p>}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Achievements and Experience */}
-              {(selectedApplication.achievements || selectedApplication.extracurricular || selectedApplication.workExperience) && (
-                <div>
-                  <h3 className="font-semibold mb-2">Achievements and Experience</h3>
-                  <div className="space-y-2 text-sm">
-                    {selectedApplication.achievements && <p><strong>Academic Achievements:</strong> {selectedApplication.achievements}</p>}
-                    {selectedApplication.extracurricular && <p><strong>Extracurricular Activities:</strong> {selectedApplication.extracurricular}</p>}
-                    {selectedApplication.workExperience && <p><strong>Work Experience:</strong> {selectedApplication.workExperience}</p>}
-                    {selectedApplication.researchExperience && <p><strong>Research Experience:</strong> {selectedApplication.researchExperience}</p>}
+                {/* Achievements and Experience */}
+                {(selectedApplication.achievements || selectedApplication.extracurricular || selectedApplication.workExperience || selectedApplication.researchExperience || selectedApplication.publications || selectedApplication.awards || selectedApplication.references) && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Achievements and Experience</h3>
+                    <div className="space-y-2 text-sm">
+                      {selectedApplication.achievements && <p><strong>Achievements:</strong> {selectedApplication.achievements}</p>}
+                      {selectedApplication.extracurricular && <p><strong>Extracurricular Activities:</strong> {selectedApplication.extracurricular}</p>}
+                      {selectedApplication.workExperience && <p><strong>Work Experience:</strong> {selectedApplication.workExperience}</p>}
+                      {selectedApplication.researchExperience && <p><strong>Research Experience:</strong> {selectedApplication.researchExperience}</p>}
+                      {selectedApplication.publications && <p><strong>Publications:</strong> {selectedApplication.publications}</p>}
+                      {selectedApplication.awards && <p><strong>Awards:</strong> {selectedApplication.awards}</p>}
+                      {selectedApplication.references && <p><strong>References:</strong> {selectedApplication.references}</p>}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Motivation and Goals */}
-              {(selectedApplication.motivation || selectedApplication.futureGoals) && (
-                <div>
-                  <h3 className="font-semibold mb-2">Motivation and Goals</h3>
-                  <div className="space-y-2 text-sm">
-                    {selectedApplication.motivation && <p><strong>Motivation:</strong> {selectedApplication.motivation}</p>}
-                    {selectedApplication.futureGoals && <p><strong>Future Goals:</strong> {selectedApplication.futureGoals}</p>}
+                {/* Motivation and Goals */}
+                {(selectedApplication.motivation || selectedApplication.futureGoals || selectedApplication.additionalInfo) && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Motivation and Goals</h3>
+                    <div className="space-y-2 text-sm">
+                      {selectedApplication.motivation && <p><strong>Motivation:</strong> {selectedApplication.motivation}</p>}
+                      {selectedApplication.futureGoals && <p><strong>Future Goals:</strong> {selectedApplication.futureGoals}</p>}
+                      {selectedApplication.additionalInfo && <p><strong>Additional Information:</strong> {selectedApplication.additionalInfo}</p>}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Additional Information */}
-              {selectedApplication.additionalInfo && (
-                <div>
-                  <h3 className="font-semibold mb-2">Additional Information</h3>
-                  <p className="text-sm">{selectedApplication.additionalInfo}</p>
-                </div>
-              )}
+                {/* Message */}
+                {selectedApplication.message && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Message</h3>
+                    <p className="text-sm bg-gray-50 p-3 rounded">{selectedApplication.message}</p>
+                  </div>
+                )}
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t">
-                <Button 
-                  onClick={() => handleStatusUpdate(selectedApplication.id, 'APPROVED')}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Approve Application
-                </Button>
-                <Button 
-                  onClick={() => handleStatusUpdate(selectedApplication.id, 'REJECTED')}
-                  variant="destructive"
-                >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Reject Application
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setSelectedApplication(null)}
-                >
-                  Close
-                </Button>
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-6 border-t">
+                  <Button 
+                    onClick={() => handleStatusUpdate(selectedApplication.id, 'ACCEPTED')}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Accept Application
+                  </Button>
+                  <Button 
+                    onClick={() => handleStatusUpdate(selectedApplication.id, 'REJECTED')}
+                    variant="destructive"
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Reject Application
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setSelectedApplication(null)}
+                  >
+                    Close
+                  </Button>
+                </div>
               </div>
             </div>
           )}

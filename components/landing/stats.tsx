@@ -53,7 +53,7 @@ export function Stats({ totalScholarships, totalStudents, totalApplications, tot
             return (
               <div key={index} className="text-center">
                 <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-brand-blue to-blue-700 rounded-full flex items-center justify-center">
                     <Icon className="h-8 w-8 text-white" />
                   </div>
                 </div>

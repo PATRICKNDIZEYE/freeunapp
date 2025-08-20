@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import { Providers } from '@/components/providers'
 import { Toaster } from "@/components/ui/sonner"
+import { Navigation as Navbar } from '@/components/layout/navigation'
 
 const poppins = Poppins({ 
   subsets: ['latin'],
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="en" className={poppins.variable}>
       <body className="font-sans bg-gray-50 text-gray-900">
         <Providers>
+
           {children}
           <Toaster />
         </Providers>

@@ -17,6 +17,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select'
+import Image from 'next/image'
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -84,7 +85,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-blue via-primary-800 to-primary-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-blue via-blue-700 to-blue-800 flex items-center justify-center p-4">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -95,8 +96,14 @@ export default function SignUpPage() {
       <Card className="w-full max-w-md backdrop-blur-sm bg-white/95 border-0 shadow-2xl">
         <CardHeader className="text-center pb-8">
           {/* Logo */}
-          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-brand-blue to-primary-900 rounded-xl flex items-center justify-center mb-6">
-            <GraduationCap className="h-6 w-6 text-white" />
+          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-brand-blue to-blue-800 rounded-xl flex items-center justify-center mb-6">
+            <Image 
+              src="/lgo.png" 
+              alt="FreeUnApp Logo" 
+              width={32} 
+              height={32}
+              className="h-8 w-auto"
+            />
           </div>
           
           <CardTitle className="text-3xl font-bold text-gray-900 mb-2">

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { Mail, Phone, Send } from 'lucide-react'
+import Image from 'next/image'
 
 export function MarketingSignup() {
   const [formData, setFormData] = useState({
@@ -39,6 +40,15 @@ export function MarketingSignup() {
   if (isSubmitted) {
     return (
       <div className="bg-brand-blue text-white p-6 rounded-lg text-center">
+        <div className="flex justify-center mb-4">
+          <Image 
+            src="/lgo.png" 
+            alt="FreeUnApp Logo" 
+            width={32} 
+            height={32}
+            className="h-8 w-auto"
+          />
+        </div>
         <h3 className="text-xl font-semibold mb-2">Thank you for your interest!</h3>
         <p className="text-sm opacity-90">
           We'll contact you soon with exciting opportunities and updates.
@@ -48,9 +58,18 @@ export function MarketingSignup() {
   }
 
   return (
-    <Card className="bg-gradient-to-br from-brand-blue to-primary-900 text-white border-0 shadow-xl">
+    <Card className="bg-gradient-to-br from-brand-blue to-blue-800 text-white border-0 shadow-xl">
       <CardContent className="p-8">
         <div className="text-center mb-6">
+          <div className="flex justify-center mb-4">
+            <Image 
+              src="/lgo.png" 
+              alt="FreeUnApp Logo" 
+              width={40} 
+              height={40}
+              className="h-10 w-auto"
+            />
+          </div>
           <h3 className="text-2xl font-bold mb-2">Stay Updated</h3>
           <p className="text-sm opacity-90">
             Get notified about new scholarships, opportunities, and exclusive deals
@@ -98,7 +117,7 @@ export function MarketingSignup() {
         </form>
 
         <p className="text-xs text-center mt-4 opacity-75">
-          We respect your privacy. Unsubscribe at any time.
+          By subscribing, you agree to receive marketing communications from FreeUnApp.
         </p>
       </CardContent>
     </Card>

@@ -1,87 +1,134 @@
-import Link from "next/link"
-import { GraduationCap, Mail, MapPin, Phone, ExternalLink, Heart } from "lucide-react"
+import Link from 'next/link'
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
+import Image from 'next/image'
 
 export function Footer() {
   return (
-    <footer className="bg-slate-900 text-slate-300">
+    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <div className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 gap-12">
           {/* Company Info */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                <GraduationCap className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-white">FreeUnApp</span>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Image 
+                src="/lgo.png" 
+                alt="FreeUnApp Logo" 
+                width={40} 
+                height={40}
+                className="h-10 w-auto"
+              />
+              <span className="text-xl font-bold">FreeUnApp</span>
             </div>
-            <p className="text-slate-400 text-lg leading-relaxed max-w-md mb-6">
-              We're on a mission to democratize education by connecting students with scholarship opportunities that can transform their academic journey.
+            <p className="text-gray-300 leading-relaxed">
+              Connecting students with life-changing scholarship opportunities. 
+              Your gateway to educational success and financial freedom.
             </p>
-            <div className="flex items-center gap-6">
-              <a href="mailto:info@freeunapp.org" className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors">
-                <Mail className="h-4 w-4" />
-                <span>info@freeunapp.org</span>
-              </a>
-              <a href="tel:+1234567890" className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors">
-                <Phone className="h-4 w-4" />
-                <span>+250 798 434 426</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Platform */}
-          <div>
-            <h3 className="text-white font-semibold text-lg mb-6">Platform</h3>
-            <div className="space-y-4">
-              <Link href="/scholarships" className="block text-slate-400 hover:text-white transition-colors">
-                Find Scholarships
+            <div className="flex space-x-4">
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Facebook className="h-5 w-5" />
               </Link>
-              <Link href="/universities" className="block text-slate-400 hover:text-white transition-colors">
-                Universities
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Twitter className="h-5 w-5" />
               </Link>
-              <Link href="/programs" className="block text-slate-400 hover:text-white transition-colors">
-                Study Programs
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Instagram className="h-5 w-5" />
               </Link>
-              <Link href="/success-stories" className="block text-slate-400 hover:text-white transition-colors">
-                Success Stories
-              </Link>
-              <Link href="/blog" className="block text-slate-400 hover:text-white transition-colors">
-                Blog & Tips
+              <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Linkedin className="h-5 w-5" />
               </Link>
             </div>
           </div>
 
-          {/* Company */}
-          <div>
-            <h3 className="text-white font-semibold text-lg mb-6">Company</h3>
-            <div className="space-y-4">
-              <Link href="/about" className="block text-slate-400 hover:text-white transition-colors">
-                About Us
-              </Link>
-              <Link href="/careers" className="block text-slate-400 hover:text-white transition-colors">
-                Join Our Team
-              </Link>
-              <Link href="/partners" className="block text-slate-400 hover:text-white transition-colors">
-                Partners
-              </Link>
-              <Link href="/press" className="block text-slate-400 hover:text-white transition-colors">
-                Press Kit
-              </Link>
-              <Link href="/contact" className="block text-slate-400 hover:text-white transition-colors">
-                Get in Touch
-              </Link>
+          {/* Quick Links */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Quick Links</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/scholarships" className="text-gray-300 hover:text-white transition-colors">
+                  Browse Scholarships
+                </Link>
+              </li>
+              <li>
+                <Link href="/resources" className="text-gray-300 hover:text-white transition-colors">
+                  Resources
+                </Link>
+              </li>
+              <li>
+                <Link href="/auth/signup" className="text-gray-300 hover:text-white transition-colors">
+                  Sign Up
+                </Link>
+              </li>
+              <li>
+                <Link href="/auth/signin" className="text-gray-300 hover:text-white transition-colors">
+                  Sign In
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Support</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                  Help Center
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Contact Info</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Mail className="h-5 w-5 text-gray-400" />
+                <span className="text-gray-300">info@freeunapp.com</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Phone className="h-5 w-5 text-gray-400" />
+                <span className="text-gray-300">+250 788 123 456</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <MapPin className="h-5 w-5 text-gray-400" />
+                <span className="text-gray-300">Kigali, Rwanda</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className="border-t border-slate-800 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-6 text-sm text-slate-400">
-              <span>© 2025 FreeUnApp, Inc.</span>
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-              <Link href="/cookies" className="hover:text-white transition-colors">Cookies</Link>
+        {/* Bottom Bar */}
+        <div className="border-t border-gray-700 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-400 text-sm">
+              © 2024 FreeUnApp. All rights reserved.
+            </p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Terms of Service
+              </Link>
+              <Link href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                Cookie Policy
+              </Link>
             </div>
           </div>
         </div>

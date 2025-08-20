@@ -70,7 +70,7 @@ export default function ProfilePage() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-4">
                     <div className="relative">
-                      <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <div className="w-20 h-20 bg-gradient-to-br from-brand-blue to-blue-700 rounded-full flex items-center justify-center">
                         <User className="h-8 w-8 text-white" />
                       </div>
                       <Button size="sm" variant="outline" className="absolute -bottom-1 -right-1 w-8 h-8 p-0">

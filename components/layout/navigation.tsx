@@ -2,10 +2,11 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { GraduationCap, Menu, X, User, Search, Bookmark, Bell } from "lucide-react"
+import { Menu, X, User, Search, Bookmark, Bell } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -20,23 +21,29 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="p-2 bg-blue-600 rounded-lg">
-              <GraduationCap className="h-6 w-6 text-white" />
+            <div className="p-2 rounded-lg">
+              <Image 
+                src="/lgo.png" 
+                alt="FreeUnApp Logo" 
+                width={100} 
+                height={100}
+                className="h-32 w-auto"
+              />
             </div>
-            <span className="text-xl font-bold text-gray-900">FreeUnApp</span>
+
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/scholarships" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="/scholarships" className="text-gray-700 hover:text-brand-blue font-medium transition-colors">
               Browse Scholarships
             </Link>
-            <Link href="/resources" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+            <Link href="/resources" className="text-gray-700 hover:text-brand-blue font-medium transition-colors">
               Resources
             </Link>
         
             {session?.user.role === 'ADMIN' || session?.user.role === 'SUPER_ADMIN' ? (
-              <Link href="/admin" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              <Link href="/dashboard" className="text-gray-700 hover:text-brand-blue font-medium transition-colors">
                 Admin Dashboard
               </Link>
             ) : null}
@@ -76,7 +83,7 @@ export function Navigation() {
                 <Button
                   size="sm"
                   onClick={() => router.push('/auth/signup')}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-brand-blue hover:bg-blue-700"
                 >
                   Sign Up
                 </Button>
@@ -140,7 +147,7 @@ export function Navigation() {
                 </Link>
                 {(session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN') && (
                   <Link 
-                    href="/admin" 
+                    href="/dashboard" 
                     className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -167,7 +174,7 @@ export function Navigation() {
                   Sign In
                 </Button>
                 <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-brand-blue hover:bg-blue-700"
                   onClick={() => {
                     router.push('/auth/signup')
                     setIsMenuOpen(false)

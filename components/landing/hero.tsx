@@ -3,18 +3,25 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, ArrowRight, GraduationCap } from 'lucide-react'
+import { Search, ArrowRight } from 'lucide-react'
+import Image from 'next/image'
 
 export function Hero() {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue via-primary-800 to-primary-900 text-white">
+    <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue via-blue-700 to-blue-800 text-white">
       <div className="absolute inset-0 bg-opacity-20 bg-white"></div>
       
       <div className="relative container mx-auto px-4 py-20 lg:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-8">
             <div className="p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-              <GraduationCap className="h-12 w-12 text-white" />
+              <Image 
+                src="/lgo.png" 
+                alt="FreeUnApp Logo" 
+                width={48} 
+                height={48}
+                className="h-12 w-auto"
+              />
             </div>
           </div>
 

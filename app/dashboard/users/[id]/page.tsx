@@ -117,7 +117,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-brand-blue to-blue-700 rounded-full flex items-center justify-center">
                       <User className="h-8 w-8 text-white" />
                     </div>
                     <div className="flex-1">

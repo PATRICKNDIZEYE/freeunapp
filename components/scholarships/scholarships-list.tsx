@@ -205,12 +205,14 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
 
       {/* Scholarship Detail Modal */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto bg-white border-2 border-gray-200 shadow-2xl">
           {selectedScholarship && (
-            <ScholarshipDetail 
-              scholarship={selectedScholarship}
-              user={null}
-            />
+            <div className="p-6">
+              <ScholarshipDetail 
+                scholarship={selectedScholarship}
+                user={null}
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>

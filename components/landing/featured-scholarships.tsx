@@ -11,45 +11,52 @@ import {
   DialogTitle,
   DialogTrigger 
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { 
-  GraduationCap, 
+  Heart, 
+  Share2, 
+  Send, 
   Calendar, 
   DollarSign, 
-  Users,
-  ExternalLink,
-  Send,
-  Eye,
-  Clock,
+  GraduationCap, 
   MapPin,
+  Eye,
+  Bookmark,
+  CheckCircle,
+  ExternalLink,
   BookOpen,
+  FileText,
   Award,
-  FileText
+  Users
 } from 'lucide-react'
+import { ScholarshipDetails } from '../scholarships/scholarship-details'
 
 interface Scholarship {
   id: string
   title: string
   description: string
-  detailedDescription?: string | null
+  detailedDescription: string | null
+  logoUrl: string | null
+  referenceUrl: string | null
+  eligibilityCriteria: string | null
+  applicationProcess: string | null
+  qualificationBasis: string | null
+  awardsAvailable: number | null
   amount: string
+  amountType: string
   category: string
   degreeLevel: string
   deadline: Date
+  contactInfo: string | null
   status: string
-  eligibilityCriteria?: string | null
-  applicationProcess?: string | null
-  contactInfo?: string | null
-  referenceUrl?: string | null
-  awardsAvailable?: number | null
+  approvalStatus: string
+  views: number
+  createdAt: Date
   admin: {
     name: string | null
   }
   _count: {
-    applications: number
     savedBy: number
+    applications: number
   }
 }
 
@@ -58,15 +65,19 @@ interface FeaturedScholarshipsProps {
 }
 
 export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps) {
-  const [applicationForm, setApplicationForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  })
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [viewMode, setViewMode] = useState<'details' | 'apply'>('details')
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+  const handleViewDetails = (scholarship: Scholarship) => {
+    setSelectedScholarship(scholarship)
+    setIsDetailOpen(true)
+  }
+
+  const handleShare = (scholarship: Scholarship) => {
+    const text = `Check out this scholarship: ${scholarship.title} - ${window.location.origin}/scholarships/${scholarship.id}`
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
+    window.open(whatsappUrl, '_blank')
+  }
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -74,321 +85,132 @@ export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps
       case 'ENGINEERING': return 'bg-purple-100 text-purple-800'
       case 'MEDICINE': return 'bg-red-100 text-red-800'
       case 'BUSINESS': return 'bg-green-100 text-green-800'
-      case 'LAW': return 'bg-orange-100 text-orange-800'
-      case 'EDUCATION': return 'bg-teal-100 text-teal-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
 
-  const handleApply = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedScholarship) return
-
-    setIsSubmitting(true)
-    try {
-      const response = await fetch('/api/applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...applicationForm,
-          scholarshipId: selectedScholarship.id
-        })
-      })
-
-      if (response.ok) {
-        alert('Application submitted successfully! We will contact you soon.')
-        setApplicationForm({ name: '', email: '', phone: '', message: '' })
-        setSelectedScholarship(null)
-        setViewMode('details')
-      } else {
-        alert('Failed to submit application. Please try again.')
-      }
-    } catch (error) {
-      alert('Error submitting application. Please try again.')
-    } finally {
-      setIsSubmitting(false)
+  const getAmountColor = (amountType: string) => {
+    switch (amountType) {
+      case 'FULL': return 'bg-green-100 text-green-800'
+      case 'PARTIAL': return 'bg-yellow-100 text-yellow-800'
+      case 'CUSTOM': return 'bg-blue-100 text-blue-800'
+      default: return 'bg-gray-100 text-gray-800'
     }
   }
 
-  const openDetails = (scholarship: Scholarship) => {
-    setSelectedScholarship(scholarship)
-    setViewMode('details')
+  const isDeadlineExpired = (deadline: Date) => {
+    return new Date(deadline) < new Date()
   }
 
-  const openApply = (scholarship: Scholarship) => {
-    setSelectedScholarship(scholarship)
-    setViewMode('apply')
+  if (scholarships.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <GraduationCap className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Featured Scholarships</h3>
+        <p className="text-gray-600">Check back later for featured opportunities.</p>
+      </div>
+    )
   }
 
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Featured Scholarships
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Don't miss out on these high-value opportunities closing soon
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {scholarships.map((scholarship) => (
-            <Card key={scholarship.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
-                      {scholarship.title}
-                    </CardTitle>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Badge className={getCategoryColor(scholarship.category)}>
-                        {scholarship.category.replace('_', ' ')}
-                      </Badge>
-                      <Badge variant="outline">
-                        {scholarship.degreeLevel}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <p className="text-gray-600 text-sm line-clamp-3">
-                  {scholarship.description}
-                </p>
-
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <DollarSign className="h-4 w-4" />
-                    <span className="font-medium">{scholarship.amount}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>{scholarship._count.applications} applicants</span>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {scholarships.slice(0, 6).map((scholarship) => (
+          <Card key={scholarship.id} className="hover:shadow-lg transition-shadow group">
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-lg font-semibold line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+                    {scholarship.title}
+                  </CardTitle>
+                  
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <Badge className={getAmountColor(scholarship.amountType)}>
+                      {scholarship.amountType === 'FULL' ? 'Full Tuition' : 
+                       scholarship.amountType === 'PARTIAL' ? 'Partial' : 
+                       scholarship.amountType === 'CUSTOM' ? scholarship.amount : scholarship.amountType}
+                    </Badge>
+                    <Badge className={getCategoryColor(scholarship.category)}>
+                      {scholarship.category.replace('_', ' ')}
+                    </Badge>
+                    <Badge variant="outline">
+                      {scholarship.degreeLevel}
+                    </Badge>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1 text-gray-500">
-                    <Calendar className="h-4 w-4" />
-                    <span>Due: {new Date(scholarship.deadline).toLocaleDateString()}</span>
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    By: {scholarship.admin.name || 'Admin'}
-                  </div>
+                <div className="flex flex-col gap-2 ml-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleShare(scholarship)}
+                    className="h-8 w-8 p-0 text-gray-400 hover:text-green-500"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </Button>
                 </div>
+              </div>
+            </CardHeader>
 
-                <div className="flex gap-2 pt-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => openDetails(scholarship)}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold">
-                          {selectedScholarship?.title}
-                        </DialogTitle>
-                      </DialogHeader>
-                      
-                      {viewMode === 'details' ? (
-                        <div className="space-y-6">
-                          {/* Basic Info */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-center gap-2">
-                              <DollarSign className="h-5 w-5 text-green-600" />
-                              <span className="font-semibold">{selectedScholarship?.amount}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Award className="h-5 w-5 text-blue-600" />
-                              <span>{selectedScholarship?.awardsAvailable || 'Multiple'} awards available</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-5 w-5 text-red-600" />
-                              <span>Deadline: {selectedScholarship?.deadline ? new Date(selectedScholarship.deadline).toLocaleDateString() : 'TBD'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <GraduationCap className="h-5 w-5 text-purple-600" />
-                              <span>{selectedScholarship?.degreeLevel}</span>
-                            </div>
-                          </div>
-
-                          {/* Description */}
-                          <div>
-                            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                              <BookOpen className="h-5 w-5" />
-                              About This Scholarship
-                            </h3>
-                            <p className="text-gray-700 leading-relaxed">
-                              {selectedScholarship?.detailedDescription || selectedScholarship?.description}
-                            </p>
-                          </div>
-
-                          {/* Eligibility */}
-                          {selectedScholarship?.eligibilityCriteria && (
-                            <div>
-                              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                                <FileText className="h-5 w-5" />
-                                Eligibility Criteria
-                              </h3>
-                              <div className="bg-gray-50 p-4 rounded-lg">
-                                <p className="text-gray-700 whitespace-pre-wrap">
-                                  {selectedScholarship.eligibilityCriteria}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Application Process */}
-                          {selectedScholarship?.applicationProcess && (
-                            <div>
-                              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                                <FileText className="h-5 w-5" />
-                                Application Process
-                              </h3>
-                              <div className="bg-blue-50 p-4 rounded-lg">
-                                <p className="text-gray-700 whitespace-pre-wrap">
-                                  {selectedScholarship.applicationProcess}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Contact & Links */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {selectedScholarship?.contactInfo && (
-                              <div>
-                                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                                  <MapPin className="h-5 w-5" />
-                                  Contact Information
-                                </h3>
-                                <p className="text-gray-700">{selectedScholarship.contactInfo}</p>
-                              </div>
-                            )}
-                            {selectedScholarship?.referenceUrl && (
-                              <div>
-                                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                                  <ExternalLink className="h-5 w-5" />
-                                  Official Website
-                                </h3>
-                                <a 
-                                  href={selectedScholarship.referenceUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:text-blue-800 underline"
-                                >
-                                  Visit Official Website
-                                </a>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex gap-3 pt-4 border-t">
-                            <Button 
-                              onClick={() => openApply(selectedScholarship!)}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700"
-                            >
-                              <Send className="h-4 w-4 mr-2" />
-                              Apply Now
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              onClick={() => setSelectedScholarship(null)}
-                            >
-                              Close
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <form onSubmit={handleApply} className="space-y-4">
-                          <div className="mb-4">
-                            <h3 className="text-lg font-semibold mb-2">Apply for {selectedScholarship?.title}</h3>
-                            <p className="text-gray-600 text-sm">Please fill out the application form below.</p>
-                          </div>
-                          
-                          <div>
-                            <Label htmlFor="name">Full Name *</Label>
-                            <Input
-                              id="name"
-                              value={applicationForm.name}
-                              onChange={(e) => setApplicationForm({ ...applicationForm, name: e.target.value })}
-                              required
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="email">Email Address *</Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              value={applicationForm.email}
-                              onChange={(e) => setApplicationForm({ ...applicationForm, email: e.target.value })}
-                              required
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="phone">Phone Number</Label>
-                            <Input
-                              id="phone"
-                              value={applicationForm.phone}
-                              onChange={(e) => setApplicationForm({ ...applicationForm, phone: e.target.value })}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="message">Why should you be considered? *</Label>
-                            <Textarea
-                              id="message"
-                              value={applicationForm.message}
-                              onChange={(e) => setApplicationForm({ ...applicationForm, message: e.target.value })}
-                              rows={3}
-                              required
-                            />
-                          </div>
-                          <div className="flex gap-3 pt-4">
-                            <Button type="submit" disabled={isSubmitting} className="flex-1">
-                              {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                            </Button>
-                            <Button 
-                              type="button"
-                              variant="outline" 
-                              onClick={() => setViewMode('details')}
-                            >
-                              Back to Details
-                            </Button>
-                          </div>
-                        </form>
-                      )}
-                    </DialogContent>
-                  </Dialog>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-600 line-clamp-3">
+                {scholarship.description}
+              </p>
+              
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2 text-gray-500">
+                  <DollarSign className="h-4 w-4" />
+                  <span>{scholarship.amount}</span>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <div className="flex items-center gap-2 text-gray-500">
+                  <GraduationCap className="h-4 w-4" />
+                  <span>{scholarship.degreeLevel}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-500">
+                  <Calendar className="h-4 w-4" />
+                  <span className={isDeadlineExpired(scholarship.deadline) ? 'text-red-600' : ''}>
+                    {new Date(scholarship.deadline).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-500">
+                  <Users className="h-4 w-4" />
+                  <span>{scholarship._count.applications} applications</span>
+                </div>
+              </div>
 
-        {scholarships.length === 0 && (
-          <div className="text-center py-12">
-            <GraduationCap className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No scholarships available</h3>
-            <p className="text-gray-500">Check back soon for new opportunities!</p>
-          </div>
-        )}
+              {/* Deadline Warning */}
+              {isDeadlineExpired(scholarship.deadline) && (
+                <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+                  ❌ Deadline passed
+                </div>
+              )}
 
-        <div className="text-center mt-12">
-          <a href="/scholarships">
-            <Button variant="outline" size="lg">
-              View All Scholarships
-            </Button>
-          </a>
-        </div>
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
+                <Button 
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => handleViewDetails(scholarship)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-    </section>
+
+      {/* Scholarship Detail Modal */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-2 border-gray-200 shadow-2xl">
+          {selectedScholarship && (
+            <div className="p-6">
+              <ScholarshipDetails scholarship={selectedScholarship} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
