@@ -5,6 +5,7 @@ import { FeaturedScholarships } from '@/components/landing/featured-scholarships
 import { Footer } from '@/components/layout/footer'
 import { ScholarshipFilters } from '@/components/landing/scholarship-filters'
 import { MarketingSignup } from '@/components/landing/marketing-signup'
+import { OnboardingCard } from '@/components/landing/onboarding-card'
 
 export default async function HomePage() {
   // Fetch real data from database
@@ -67,6 +68,9 @@ export default async function HomePage() {
       </section>
       
       <Footer />
+      
+      {/* Onboarding Card */}
+      <OnboardingCard />
     </div>
   )
 }

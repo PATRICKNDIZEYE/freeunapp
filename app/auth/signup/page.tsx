@@ -9,7 +9,14 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { FcGoogle } from 'react-icons/fc'
-import { ArrowRight, GraduationCap, User, Mail, Lock, Phone } from 'lucide-react'
+import { ArrowRight, GraduationCap, User, Mail, Lock, Phone, Shield } from 'lucide-react'
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select'
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -17,7 +24,8 @@ export default function SignUpPage() {
     email: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'STUDENT' // Default to student
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -42,7 +50,8 @@ export default function SignUpPage() {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          password: formData.password
+          password: formData.password,
+          role: formData.role
         })
       })
 
@@ -100,7 +109,7 @@ export default function SignUpPage() {
           {/* Admin Approval Note */}
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-blue-800 text-xs">
-              <strong>Note:</strong> New accounts require admin approval. You'll be notified when your account is activated.
+              <strong>Note:</strong> New accounts require super admin approval. You'll be notified when your account is activated.
             </p>
           </div>
         </CardHeader>
@@ -176,6 +185,27 @@ export default function SignUpPage() {
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="pl-10 bg-white border-gray-300 focus:border-brand-blue focus:ring-brand-blue"
                 />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="role" className="text-sm font-medium text-gray-700">
+                I am a
+              </Label>
+              <div className="relative mt-1">
+                <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Select 
+                  value={formData.role} 
+                  onValueChange={(value) => setFormData({ ...formData, role: value })}
+                >
+                  <SelectTrigger className="pl-10 bg-white border-gray-300 focus:border-brand-blue focus:ring-brand-blue">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="STUDENT">Student (Looking for scholarships)</SelectItem>
+                    <SelectItem value="ADMIN">Administrator (Managing scholarships)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

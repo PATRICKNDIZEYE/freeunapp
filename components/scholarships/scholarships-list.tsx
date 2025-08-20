@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -267,33 +268,15 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
 
               {/* Action Buttons */}
               <div className="flex gap-2 pt-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button 
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => setSelectedScholarship(scholarship)}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>{scholarship.title}</DialogTitle>
-                    </DialogHeader>
-                    {selectedScholarship && (
-                      <ScholarshipDetails 
-                        scholarship={selectedScholarship}
-                        onSave={() => handleSave(scholarship.id)}
-                        onApply={() => handleApply(scholarship.id)}
-                        onShare={() => handleShare(scholarship)}
-                        isSaved={savedScholarships.has(scholarship.id)}
-                        isApplied={appliedScholarships.has(scholarship.id)}
-                      />
-                    )}
-                  </DialogContent>
-                </Dialog>
+                <Link href={`/scholarships/${scholarship.id}`}>
+                  <Button 
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Details
+                  </Button>
+                </Link>
 
                 {!isDeadlineExpired(scholarship.deadline) && (
                   <Button 
