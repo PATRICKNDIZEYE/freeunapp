@@ -1,9 +1,9 @@
 import { prisma } from '@/lib/prisma'
 import { Hero } from '@/components/landing/hero'
-import { FeaturedScholarships } from '@/components/landing/featured-scholarships'
 import { Stats } from '@/components/landing/stats'
+import { FeaturedScholarships } from '@/components/landing/featured-scholarships'
 import { Footer } from '@/components/layout/footer'
-import { Navigation as Navbar  } from '@/components/layout/navigation'
+import { ScholarshipFilters } from '@/components/landing/scholarship-filters'
 
 export default async function HomePage() {
   // Fetch real data from database
@@ -45,9 +45,9 @@ export default async function HomePage() {
   const [totalScholarships, totalStudents, totalApplications, awardsSum] = stats
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
+    <div className="min-h-screen bg-white">
       <Hero />
+      <ScholarshipFilters />
       <Stats 
         totalScholarships={totalScholarships}
         totalStudents={totalStudents}

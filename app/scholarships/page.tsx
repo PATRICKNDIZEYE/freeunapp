@@ -1,115 +1,179 @@
+import { Suspense } from 'react'
 import { prisma } from '@/lib/prisma'
-import { ScholarshipsList } from '@/components/scholarships/scholarships-list'
 import { ScholarshipsFilter } from '@/components/scholarships/scholarships-filter'
-import { Hero } from '@/components/landing/hero'
+import { ScholarshipsList } from '@/components/scholarships/scholarships-list'
+import { Navigation } from '@/components/layout/navigation'
 import { Footer } from '@/components/layout/footer'
-import { Navigation as Navbar  } from '@/components/layout/navigation'
+import { Card, CardContent } from '@/components/ui/card'
+import { GraduationCap, Users, Award, DollarSign } from 'lucide-react'
 
-export default async function ScholarshipsPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined }
-}) {
-  const category = searchParams.category as string
-  const degreeLevel = searchParams.degreeLevel as string
-  const search = searchParams.search as string
-
-  // Build where clause
-  const where: any = {
-    status: 'ACTIVE'
+interface PageProps {
+  searchParams: {
+    search?: string
+    category?: string
+    degreeLevel?: string
+    amountType?: string
+    deadline?: string
   }
+}
 
-  if (category && category !== 'all') {
-    where.category = category
-  }
-
-  if (degreeLevel && degreeLevel !== 'all') {
-    where.degreeLevel = degreeLevel
-  }
-
-  if (search) {
-    where.OR = [
-      { title: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } }
-    ]
-  }
-
-  const scholarships = await prisma.scholarship.findMany({
-    where,
-    include: {
-      admin: {
-        select: {
-          name: true
+export default async function ScholarshipsPage({ searchParams }: PageProps) {
+  // Fetch real data from database
+  const [scholarships, stats] = await Promise.all([
+    prisma.scholarship.findMany({
+      where: { 
+        status: 'ACTIVE'
+      },
+      include: {
+        admin: {
+          select: {
+            name: true
+          }
+        },
+        _count: {
+          select: {
+            applications: true,
+            savedBy: true
+          }
         }
       },
-      _count: {
-        select: {
-          applications: true,
-          savedBy: true
+      orderBy: {
+        createdAt: 'desc'
+      }
+    }),
+    prisma.$transaction([
+      prisma.scholarship.count({ where: { status: 'ACTIVE' } }),
+      prisma.user.count({ where: { role: 'STUDENT' } }),
+      prisma.application.count(),
+      prisma.scholarship.aggregate({
+        _sum: {
+          awardsAvailable: true
         }
-      }
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  })
-
-  const stats = await prisma.$transaction([
-    prisma.scholarship.count({ where: { status: 'ACTIVE' } }),
-    prisma.application.count(),
-    prisma.scholarship.aggregate({
-      _sum: {
-        awardsAvailable: true
-      }
-    })
+      })
+    ])
   ])
 
-  const [totalScholarships, totalApplications, awardsSum] = stats
+  const [totalScholarships, totalStudents, totalApplications, awardsSum] = stats
+
+  // Apply filters
+  let filteredScholarships = scholarships
+
+  if (searchParams.search) {
+    const searchTerm = searchParams.search.toLowerCase()
+    filteredScholarships = filteredScholarships.filter(scholarship =>
+      scholarship.title.toLowerCase().includes(searchTerm) ||
+      scholarship.description.toLowerCase().includes(searchTerm) ||
+      scholarship.category.toLowerCase().includes(searchTerm)
+    )
+  }
+
+  if (searchParams.category && searchParams.category !== 'all') {
+    filteredScholarships = filteredScholarships.filter(scholarship =>
+      scholarship.category === searchParams.category
+    )
+  }
+
+  if (searchParams.degreeLevel && searchParams.degreeLevel !== 'all') {
+    filteredScholarships = filteredScholarships.filter(scholarship =>
+      scholarship.degreeLevel === searchParams.degreeLevel
+    )
+  }
+
+  if (searchParams.amountType && searchParams.amountType !== 'all') {
+    filteredScholarships = filteredScholarships.filter(scholarship =>
+      scholarship.amountType === searchParams.amountType
+    )
+  }
+
+  if (searchParams.deadline && searchParams.deadline !== 'all') {
+    const days = parseInt(searchParams.deadline)
+    const deadlineDate = new Date()
+    deadlineDate.setDate(deadlineDate.getDate() + days)
+    
+    filteredScholarships = filteredScholarships.filter(scholarship =>
+      scholarship.deadline && new Date(scholarship.deadline) <= deadlineDate
+    )
+  }
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <Hero />
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
       
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              All Scholarships
-            </h1>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Discover thousands of scholarship opportunities from around the world
-            </p>
-            
-            {/* Stats */}
-            <div className="flex justify-center gap-8 mt-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{totalScholarships}</div>
-                <div className="text-sm text-gray-600">Available Scholarships</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{totalApplications}</div>
-                <div className="text-sm text-gray-600">Applications Submitted</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{awardsSum._sum.awardsAvailable || 0}</div>
-                <div className="text-sm text-gray-600">Awards Available</div>
-              </div>
-            </div>
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Scholarship Opportunities
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Discover and apply for scholarships that match your academic goals and field of study
+          </p>
+        </div>
 
-          {/* Filters and List */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-1">
-              <ScholarshipsFilter />
-            </div>
-            <div className="lg:col-span-3">
-              <ScholarshipsList scholarships={scholarships} />
-            </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center mb-2">
+                <GraduationCap className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className="text-2xl font-bold text-blue-600">{totalScholarships}</div>
+              <div className="text-sm text-gray-600">Active Scholarships</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Users className="h-6 w-6 text-green-600" />
+              </div>
+              <div className="text-2xl font-bold text-green-600">{totalStudents}</div>
+              <div className="text-sm text-gray-600">Students</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Award className="h-6 w-6 text-purple-600" />
+              </div>
+              <div className="text-2xl font-bold text-purple-600">{totalApplications}</div>
+              <div className="text-sm text-gray-600">Applications</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center mb-2">
+                <DollarSign className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="text-2xl font-bold text-orange-600">{awardsSum._sum.awardsAvailable || 0}</div>
+              <div className="text-sm text-gray-600">Awards Available</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters */}
+        <div className="mb-8">
+          <ScholarshipsFilter />
+        </div>
+
+        {/* Results */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {filteredScholarships.length} Scholarship{filteredScholarships.length !== 1 ? 's' : ''} Found
+            </h2>
+            {Object.keys(searchParams).length > 0 && (
+              <div className="text-sm text-gray-500">
+                Filtered results
+              </div>
+            )}
           </div>
         </div>
-      </section>
+
+        {/* Scholarships List */}
+        <Suspense fallback={<div>Loading scholarships...</div>}>
+          <ScholarshipsList scholarships={filteredScholarships} />
+        </Suspense>
+      </div>
 
       <Footer />
     </div>

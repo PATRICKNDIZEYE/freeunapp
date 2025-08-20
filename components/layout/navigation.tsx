@@ -31,6 +31,9 @@ export function Navigation() {
             <Link href="/scholarships" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
               Browse Scholarships
             </Link>
+            <Link href="/resources" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Resources
+            </Link>
         
             {session?.user.role === 'ADMIN' || session?.user.role === 'SUPER_ADMIN' ? (
               <Link href="/admin" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
