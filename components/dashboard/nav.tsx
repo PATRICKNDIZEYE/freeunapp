@@ -84,17 +84,17 @@ export function DashboardNav({ user, notifications }: DashboardNavProps) {
             {notifications && notifications.length > 0 && (
               <div className="relative">
                 <Button variant="ghost" size="sm" className="p-2">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {notifications.length}
-                  </span>
-                </Button>
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {notifications.length}
+                </span>
+              </Button>
               </div>
             )}
 
             {/* User Dropdown */}
             <div className="relative group">
-              <Button variant="ghost" className="flex items-center space-x-2">
+                <Button variant="ghost" className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
                 <span>{user?.name || user?.email}</span>
                 <span className={`px-2 py-1 text-xs rounded-full ${
@@ -132,7 +132,7 @@ export function DashboardNav({ user, notifications }: DashboardNavProps) {
                   </button>
                 </div>
               </div>
-            </div>
+                  </div>
 
             {/* Mobile Menu Button */}
             <Button
@@ -142,11 +142,11 @@ export function DashboardNav({ user, notifications }: DashboardNavProps) {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
+                </Button>
           </div>
-        </div>
+          </div>
 
-        {/* Mobile Menu */}
+          {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 py-4 space-y-2">
             <Link 
