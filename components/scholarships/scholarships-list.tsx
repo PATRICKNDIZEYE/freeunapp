@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { ScholarshipDetail } from './scholarship-detail'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import Link from 'next/link'
 
 interface Scholarship {
   id: string
@@ -112,7 +113,8 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {scholarships.map((scholarship) => (
-          <Card key={scholarship.id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 group overflow-hidden relative">
+          <Link key={scholarship.id} href={`/scholarships/${scholarship.id}`} className="block">
+            <Card className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 group overflow-hidden relative cursor-pointer">
             {/* Header with Icon and Title */}
             <div className="p-6 pb-4">
               <div className="flex items-start gap-4">
@@ -196,10 +198,12 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
 
                 {/* Apply Button */}
                 <Button 
-                  onClick={() => handleViewDetails(scholarship)}
+                  asChild
                   className="bg-brand-blue hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
                 >
-                  Apply Now
+                  <Link href={`/scholarships/${scholarship.id}`}>
+                    Apply Now
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -220,7 +224,8 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                 </div>
               </div>
             )}
-          </Card>
+            </Card>
+          </Link>
         ))}
       </div>
 

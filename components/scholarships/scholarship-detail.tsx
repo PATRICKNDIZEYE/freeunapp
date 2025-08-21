@@ -16,6 +16,12 @@ import {
   Clock,
   Award
 } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useRouter } from 'next/navigation'
 
 interface Scholarship {
   id: string
@@ -55,6 +61,46 @@ interface ScholarshipDetailProps {
 export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps) {
   const [isSaved, setIsSaved] = useState(false)
   const [isApplied, setIsApplied] = useState(false)
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false)
+  const [showApplicationModal, setShowApplicationModal] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
+
+  // Registration form state
+  const [registrationData, setRegistrationData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  })
+
+  // Application form state
+  const [applicationData, setApplicationData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: '',
+    dateOfBirth: '',
+    nationality: '',
+    currentInstitution: '',
+    fieldOfStudy: '',
+    currentYear: '',
+    gpa: '',
+    expectedGraduation: '',
+    intendedUniversity: '',
+    intendedProgram: '',
+    intendedCountry: '',
+    financialNeed: '',
+    achievements: '',
+    extracurricular: '',
+    workExperience: '',
+    researchExperience: '',
+    publications: '',
+    awards: '',
+    references: '',
+    motivation: '',
+    futureGoals: '',
+    additionalInfo: ''
+  })
 
   const handleSave = async () => {
     if (!user) {
@@ -81,23 +127,76 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
 
   const handleApply = async () => {
     if (!user) {
-      // Redirect to login
-      window.location.href = '/auth/signin'
+      // Show registration modal instead of redirecting
+      setShowRegistrationModal(true)
       return
     }
+
+    // If user is logged in, redirect to dedicated application page
+    router.push(`/apply/${scholarship.id}`)
+  }
+
+  const handleRegistration = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registrationData)
+      })
+
+      if (response.ok) {
+        // Registration successful, close modal and show application form
+        setShowRegistrationModal(false)
+        setShowApplicationModal(true)
+        // Pre-fill application data with registration info
+        setApplicationData(prev => ({
+          ...prev,
+          name: registrationData.name,
+          email: registrationData.email
+        }))
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Registration failed')
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+      alert('Registration failed. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleApplicationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
 
     try {
       const response = await fetch('/api/scholarships/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scholarshipId: scholarship.id })
+        body: JSON.stringify({
+          scholarshipId: scholarship.id,
+          ...applicationData
+        })
       })
 
       if (response.ok) {
         setIsApplied(true)
+        setShowApplicationModal(false)
+        // Redirect to user dashboard to see application status
+        router.push('/dashboard/applications')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Application failed')
       }
     } catch (error) {
-      console.error('Error applying for scholarship:', error)
+      console.error('Application error:', error)
+      alert('Application failed. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -352,6 +451,274 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
           </Card>
         )}
       </div>
+
+      {/* Registration Modal */}
+      <Dialog open={showRegistrationModal} onOpenChange={setShowRegistrationModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Register to Apply</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleRegistration} className="space-y-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={registrationData.name}
+                onChange={(e) => setRegistrationData(prev => ({ ...prev, name: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={registrationData.email}
+                onChange={(e) => setRegistrationData(prev => ({ ...prev, email: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={registrationData.password}
+                onChange={(e) => setRegistrationData(prev => ({ ...prev, password: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={registrationData.confirmPassword}
+                onChange={(e) => setRegistrationData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Registering...' : 'Register'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Application Form Modal */}
+      <Dialog open={showApplicationModal} onOpenChange={setShowApplicationModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Apply for {scholarship.title}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleApplicationSubmit} className="space-y-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={applicationData.name}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, name: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={applicationData.email}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, email: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Phone (Optional)</Label>
+              <Input
+                id="phone"
+                value={applicationData.phone}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, phone: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="dateOfBirth">Date of Birth (Optional)</Label>
+              <Input
+                id="dateOfBirth"
+                type="date"
+                value={applicationData.dateOfBirth}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="nationality">Nationality (Optional)</Label>
+              <Input
+                id="nationality"
+                value={applicationData.nationality}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, nationality: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="currentInstitution">Current Institution (Optional)</Label>
+              <Input
+                id="currentInstitution"
+                value={applicationData.currentInstitution}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, currentInstitution: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="fieldOfStudy">Field of Study (Optional)</Label>
+              <Input
+                id="fieldOfStudy"
+                value={applicationData.fieldOfStudy}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, fieldOfStudy: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="currentYear">Current Year (Optional)</Label>
+              <Input
+                id="currentYear"
+                type="number"
+                value={applicationData.currentYear}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, currentYear: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="gpa">GPA (Optional)</Label>
+              <Input
+                id="gpa"
+                type="number"
+                step="0.01"
+                value={applicationData.gpa}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, gpa: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="expectedGraduation">Expected Graduation (Optional)</Label>
+              <Input
+                id="expectedGraduation"
+                type="date"
+                value={applicationData.expectedGraduation}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, expectedGraduation: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="intendedUniversity">Intended University (Optional)</Label>
+              <Input
+                id="intendedUniversity"
+                value={applicationData.intendedUniversity}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, intendedUniversity: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="intendedProgram">Intended Program (Optional)</Label>
+              <Input
+                id="intendedProgram"
+                value={applicationData.intendedProgram}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, intendedProgram: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="intendedCountry">Intended Country (Optional)</Label>
+              <Input
+                id="intendedCountry"
+                value={applicationData.intendedCountry}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, intendedCountry: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="financialNeed">Financial Need (Optional)</Label>
+              <Input
+                id="financialNeed"
+                type="text"
+                value={applicationData.financialNeed}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, financialNeed: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="achievements">Achievements (Optional)</Label>
+              <Textarea
+                id="achievements"
+                value={applicationData.achievements}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, achievements: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="extracurricular">Extracurricular Activities (Optional)</Label>
+              <Textarea
+                id="extracurricular"
+                value={applicationData.extracurricular}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, extracurricular: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="workExperience">Work Experience (Optional)</Label>
+              <Textarea
+                id="workExperience"
+                value={applicationData.workExperience}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, workExperience: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="researchExperience">Research Experience (Optional)</Label>
+              <Textarea
+                id="researchExperience"
+                value={applicationData.researchExperience}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, researchExperience: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="publications">Publications (Optional)</Label>
+              <Textarea
+                id="publications"
+                value={applicationData.publications}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, publications: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="awards">Awards (Optional)</Label>
+              <Textarea
+                id="awards"
+                value={applicationData.awards}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, awards: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="references">References (Optional)</Label>
+              <Textarea
+                id="references"
+                value={applicationData.references}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, references: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="motivation">Motivation (Optional)</Label>
+              <Textarea
+                id="motivation"
+                value={applicationData.motivation}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, motivation: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="futureGoals">Future Goals (Optional)</Label>
+              <Textarea
+                id="futureGoals"
+                value={applicationData.futureGoals}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, futureGoals: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
+              <Textarea
+                id="additionalInfo"
+                value={applicationData.additionalInfo}
+                onChange={(e) => setApplicationData(prev => ({ ...prev, additionalInfo: e.target.value }))}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Submit Application'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

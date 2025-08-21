@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -29,6 +29,9 @@ import {
   Users
 } from 'lucide-react'
 import { ScholarshipDetails } from '../scholarships/scholarship-details'
+import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { toast } from 'sonner'
 
 interface Scholarship {
   id: string
@@ -67,6 +70,9 @@ interface FeaturedScholarshipsProps {
 export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps) {
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
+  const [savedStates, setSavedStates] = useState<Record<string, boolean>>({})
+  const [isSaving, setIsSaving] = useState<string | null>(null)
+  const { data: session } = useSession()
 
   const handleViewDetails = (scholarship: Scholarship) => {
     setSelectedScholarship(scholarship)
@@ -78,6 +84,63 @@ export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
     window.open(whatsappUrl, '_blank')
   }
+
+  const handleSave = async (scholarshipId: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!session) {
+      toast.error('Please sign in to save scholarships')
+      return
+    }
+
+    setIsSaving(scholarshipId)
+    
+    try {
+      const response = await fetch('/api/scholarships/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scholarshipId })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSavedStates(prev => ({
+          ...prev,
+          [scholarshipId]: data.saved
+        }))
+        toast.success(data.message)
+      } else {
+        const error = await response.json()
+        toast.error(error.error || 'Failed to save scholarship')
+      }
+    } catch (error) {
+      console.error('Error saving scholarship:', error)
+      toast.error('Failed to save scholarship')
+    } finally {
+      setIsSaving(null)
+    }
+  }
+
+  // Check saved status on component mount
+  useEffect(() => {
+    if (session) {
+      scholarships.forEach(async (scholarship) => {
+        try {
+          const response = await fetch(`/api/scholarships/save?scholarshipId=${scholarship.id}`)
+          if (response.ok) {
+            const data = await response.json()
+            setSavedStates(prev => ({
+              ...prev,
+              [scholarship.id]: data.saved
+            }))
+          }
+        } catch (error) {
+          console.error('Error checking saved status:', error)
+        }
+      })
+    }
+  }, [session, scholarships])
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -116,7 +179,8 @@ export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {scholarships.slice(0, 6).map((scholarship) => (
-          <Card key={scholarship.id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 group overflow-hidden">
+          <Link key={scholarship.id} href={`/scholarships/${scholarship.id}`} className="block">
+            <Card className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 group overflow-hidden cursor-pointer">
             {/* Header with Icon and Title */}
             <div className="p-6 pb-4">
               <div className="flex items-start gap-4">
@@ -186,24 +250,40 @@ export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps
                     variant="ghost"
                     size="sm"
                     className="h-8 w-8 p-0 text-gray-400 hover:text-brand-blue transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
                   >
                     <Heart className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-brand-blue transition-colors"
+                    className={`h-8 w-8 p-0 transition-colors ${
+                      savedStates[scholarship.id] 
+                        ? 'text-brand-blue hover:text-blue-700' 
+                        : 'text-gray-400 hover:text-brand-blue'
+                    }`}
+                    onClick={(e) => handleSave(scholarship.id, e)}
+                    disabled={isSaving === scholarship.id}
                   >
-                    <Bookmark className="h-4 w-4" />
+                    {isSaving === scholarship.id ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-blue border-t-transparent" />
+                    ) : (
+                      <Bookmark className={`h-4 w-4 ${savedStates[scholarship.id] ? 'fill-current' : ''}`} />
+                    )}
                   </Button>
                 </div>
 
                 {/* Apply Button */}
                 <Button 
-                  onClick={() => handleViewDetails(scholarship)}
+                  asChild
                   className="bg-brand-blue hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
                 >
-                  Apply Now
+                  <Link href={`/scholarships/${scholarship.id}`}>
+                    Apply Now
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -216,7 +296,8 @@ export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps
                 </div>
               </div>
             )}
-          </Card>
+            </Card>
+          </Link>
         ))}
       </div>
 

@@ -114,34 +114,17 @@ export default function SignUpPage() {
           </p>
           
           {/* Admin Approval Note */}
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800 text-xs">
-              <strong>Note:</strong> New accounts require super admin approval. You'll be notified when your account is activated.
-            </p>
-          </div>
+         
         </CardHeader>
 
         <CardContent className="space-y-6">
           {/* Social Login */}
           <div className="space-y-3">
-            <Button
-              onClick={handleGoogleSignIn}
-              variant="outline"
-              className="w-full bg-white hover:bg-gray-50 border-gray-300"
-            >
-              <FcGoogle className="h-5 w-5 mr-2" />
-              Continue with Google
-            </Button>
+      
+           
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator className="w-full" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">Or continue with</span>
-            </div>
-          </div>
+        
 
           {/* Sign Up Form */}
           <form onSubmit={handleSubmit} className="space-y-4">

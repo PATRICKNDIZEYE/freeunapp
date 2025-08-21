@@ -4,9 +4,9 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { DashboardNav } from '@/components/dashboard/nav'
 import { StudentNavigation } from '@/components/layout/student-navigation'
-import { SettingsForm } from '@/components/dashboard/settings-form'
+import { NotificationsList } from '@/components/dashboard/notifications-list'
 
-export default async function SettingsPage() {
+export default async function NotificationsPage() {
   const session = await getServerSession(authOptions)
   
   if (!session) {
@@ -22,11 +22,10 @@ export default async function SettingsPage() {
     redirect('/auth/signin')
   }
 
-  // Get notifications for navigation
+  // Get notifications for the user
   const notifications = await prisma.notification.findMany({
     where: { userId: user.id },
-    orderBy: { createdAt: 'desc' },
-    take: 10
+    orderBy: { createdAt: 'desc' }
   })
 
   // For students, get additional navigation data
@@ -54,7 +53,10 @@ export default async function SettingsPage() {
       
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
-          <SettingsForm user={user} />
+          <NotificationsList 
+            notifications={notifications} 
+            userRole={user.role}
+          />
         </div>
       </div>
     </div>

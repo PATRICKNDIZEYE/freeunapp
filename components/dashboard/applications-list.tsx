@@ -2,35 +2,20 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
-import { 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  Eye, 
+  Calendar, 
+  DollarSign, 
+  GraduationCap, 
+  Clock,
   CheckCircle,
   XCircle,
-  Clock,
-  User,
-  GraduationCap,
-  Calendar,
-  Mail
+  AlertCircle,
+  Eye,
+  FileText
 } from 'lucide-react'
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogTrigger 
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface Application {
   id: string
@@ -62,9 +47,14 @@ interface Application {
   futureGoals: string | null
   additionalInfo: string | null
   scholarship: {
+    id: string
     title: string
+    amount: string
+    amountType: string
     category: string
     degreeLevel: string
+    deadline: Date
+    status: string
   }
 }
 
@@ -73,353 +63,410 @@ interface ApplicationsListProps {
 }
 
 export function ApplicationsList({ applications }: ApplicationsListProps) {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [scholarshipFilter, setScholarshipFilter] = useState('all')
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
-
-  const filteredApplications = applications.filter(application => {
-    const matchesSearch = 
-      application.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      application.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      application.scholarship.title.toLowerCase().includes(searchTerm.toLowerCase())
-    
-    const matchesStatus = statusFilter === 'all' || application.status === statusFilter
-    const matchesScholarship = scholarshipFilter === 'all' || application.scholarship.title === scholarshipFilter
-    
-    return matchesSearch && matchesStatus && matchesScholarship
-  })
+  const [showDetails, setShowDetails] = useState(false)
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'APPLIED': return 'bg-yellow-100 text-yellow-800'
-      case 'ACCEPTED': return 'bg-green-100 text-green-800'
-      case 'REJECTED': return 'bg-red-100 text-red-800'
-      case 'UNDER_REVIEW': return 'bg-blue-100 text-blue-800'
-      case 'WAITLISTED': return 'bg-purple-100 text-purple-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'APPLIED':
+        return 'bg-blue-100 text-blue-800'
+      case 'UNDER_REVIEW':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'ACCEPTED':
+        return 'bg-green-100 text-green-800'
+      case 'REJECTED':
+        return 'bg-red-100 text-red-800'
+      case 'WAITLISTED':
+        return 'bg-purple-100 text-purple-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'APPLIED': return <Clock className="h-4 w-4" />
-      case 'ACCEPTED': return <CheckCircle className="h-4 w-4" />
-      case 'REJECTED': return <XCircle className="h-4 w-4" />
-      case 'UNDER_REVIEW': return <Eye className="h-4 w-4" />
-      case 'WAITLISTED': return <Clock className="h-4 w-4" />
-      default: return <Clock className="h-4 w-4" />
+      case 'APPLIED':
+        return <FileText className="h-4 w-4" />
+      case 'UNDER_REVIEW':
+        return <Clock className="h-4 w-4" />
+      case 'ACCEPTED':
+        return <CheckCircle className="h-4 w-4" />
+      case 'REJECTED':
+        return <XCircle className="h-4 w-4" />
+      case 'WAITLISTED':
+        return <AlertCircle className="h-4 w-4" />
+      default:
+        return <FileText className="h-4 w-4" />
     }
   }
 
-  const handleStatusUpdate = async (applicationId: string, newStatus: string) => {
-    try {
-      const response = await fetch(`/api/applications/${applicationId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      })
-      
-      if (response.ok) {
-        // Refresh the page to show updated data
-        window.location.reload()
-      }
-    } catch (error) {
-      console.error('Error updating application status:', error)
-    }
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+  const isDeadlineExpired = (deadline: Date) => {
+    return new Date(deadline) < new Date()
+  }
+
+  if (applications.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <FileText className="w-12 h-12 text-gray-400" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
+        <p className="text-gray-600 mb-6">Start applying for scholarships to see your applications here.</p>
+        <Button asChild>
+          <a href="/scholarships">Browse Scholarships</a>
+        </Button>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
-      {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search by name, email, or scholarship..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Status
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setStatusFilter('all')}>
-              All Status
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('APPLIED')}>
-              Applied
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('UNDER_REVIEW')}>
-              Under Review
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('ACCEPTED')}>
-              Accepted
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('REJECTED')}>
-              Rejected
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter('WAITLISTED')}>
-              Waitlisted
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Scholarship
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setScholarshipFilter('all')}>
-              All Scholarships
-            </DropdownMenuItem>
-            {Array.from(new Set(applications.map(app => app.scholarship.title))).map(title => (
-              <DropdownMenuItem key={title} onClick={() => setScholarshipFilter(title)}>
-                {title}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FileText className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Applications</p>
+                <p className="text-2xl font-bold text-gray-900">{applications.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <Clock className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Under Review</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {applications.filter(a => a.status === 'UNDER_REVIEW').length}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Accepted</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {applications.filter(a => a.status === 'ACCEPTED').length}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <XCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Rejected</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {applications.filter(a => a.status === 'REJECTED').length}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Results Count */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
-          {filteredApplications.length} Application{filteredApplications.length !== 1 ? 's' : ''} Found
-        </h2>
-        {(searchTerm || statusFilter !== 'all' || scholarshipFilter !== 'all') && (
-          <div className="text-sm text-gray-500">
-            Filtered results
-          </div>
-        )}
-      </div>
-
-      {/* Applications Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredApplications.map((application) => (
-          <Card key={application.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-4">
+      {/* Applications List */}
+      <div className="space-y-4">
+        {applications.map((application) => (
+          <Card key={application.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg font-semibold line-clamp-2 mb-2">
-                    {application.name}
-                  </CardTitle>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-3 mb-3">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {application.scholarship.title}
+                    </h3>
                     <Badge className={getStatusColor(application.status)}>
                       <div className="flex items-center gap-1">
                         {getStatusIcon(application.status)}
-                        {application.status}
+                        {application.status.replace('_', ' ')}
                       </div>
                     </Badge>
                   </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-4">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-brand-blue" />
+                      <span>{application.scholarship.amount}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="h-4 w-4 text-brand-blue" />
+                      <span>{application.scholarship.degreeLevel}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-brand-blue" />
+                      <span className={isDeadlineExpired(application.scholarship.deadline) ? 'text-red-600' : ''}>
+                        {formatDate(application.scholarship.deadline)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-brand-blue" />
+                      <span>Applied {formatDate(application.appliedAt)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="outline">
+                      {application.scholarship.category.replace('_', ' ')}
+                    </Badge>
+                    {application.fieldOfStudy && (
+                      <Badge variant="outline">
+                        {application.fieldOfStudy}
+                      </Badge>
+                    )}
+                    {application.gpa && (
+                      <Badge variant="outline">
+                        GPA: {application.gpa}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setSelectedApplication(application)}>
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleStatusUpdate(application.id, 'ACCEPTED')}>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Accept
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleStatusUpdate(application.id, 'REJECTED')}>
-                      <XCircle className="h-4 w-4 mr-2" />
-                      Reject
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedApplication(application)
+                    setShowDetails(true)
+                  }}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
               </div>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Mail className="h-4 w-4" />
-                <span>{application.email}</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <GraduationCap className="h-4 w-4" />
-                <span>{application.scholarship.title}</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Calendar className="h-4 w-4" />
-                <span>Applied: {new Date(application.appliedAt).toLocaleDateString()}</span>
-              </div>
-
-              {application.motivation && (
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  "{application.motivation}"
-                </p>
-              )}
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* Application Details Modal */}
-      <Dialog open={!!selectedApplication} onOpenChange={() => setSelectedApplication(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-2 border-gray-200 shadow-2xl">
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedApplication && (
-            <div className="p-6">
+            <div>
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">
-                  Application Details
-                </DialogTitle>
+                <DialogTitle>Application Details</DialogTitle>
               </DialogHeader>
               
-              <div className="space-y-6 mt-6">
-                {/* Basic Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Basic Information</h3>
-                    <div className="space-y-2 text-sm">
-                      <p><strong>Name:</strong> {selectedApplication.name}</p>
-                      <p><strong>Email:</strong> {selectedApplication.email}</p>
-                      {selectedApplication.phone && <p><strong>Phone:</strong> {selectedApplication.phone}</p>}
-                      <p><strong>Applied:</strong> {new Date(selectedApplication.appliedAt).toLocaleDateString()}</p>
-                      <p><strong>Status:</strong> 
-                        <Badge className={`ml-2 ${getStatusColor(selectedApplication.status)}`}>
-                          {selectedApplication.status}
+              <div className="space-y-6 mt-4">
+                {/* Scholarship Info */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Scholarship Information</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Scholarship</p>
+                        <p className="text-gray-900">{selectedApplication.scholarship.title}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Amount</p>
+                        <p className="text-gray-900">{selectedApplication.scholarship.amount}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Category</p>
+                        <p className="text-gray-900">{selectedApplication.scholarship.category.replace('_', ' ')}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Degree Level</p>
+                        <p className="text-gray-900">{selectedApplication.scholarship.degreeLevel}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Deadline</p>
+                        <p className="text-gray-900">{formatDate(selectedApplication.scholarship.deadline)}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Status</p>
+                        <Badge className={getStatusColor(selectedApplication.status)}>
+                          {selectedApplication.status.replace('_', ' ')}
                         </Badge>
-                      </p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Scholarship Information</h3>
-                    <div className="space-y-2 text-sm">
-                      <p><strong>Scholarship:</strong> {selectedApplication.scholarship.title}</p>
-                      <p><strong>Category:</strong> {selectedApplication.scholarship.category}</p>
-                      <p><strong>Degree Level:</strong> {selectedApplication.scholarship.degreeLevel}</p>
-                    </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
                 {/* Personal Information */}
-                {(selectedApplication.dateOfBirth || selectedApplication.nationality) && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
-                    <div className="space-y-2 text-sm">
-                      {selectedApplication.dateOfBirth && <p><strong>Date of Birth:</strong> {new Date(selectedApplication.dateOfBirth).toLocaleDateString()}</p>}
-                      {selectedApplication.nationality && <p><strong>Nationality:</strong> {selectedApplication.nationality}</p>}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Personal Information</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Name</p>
+                        <p className="text-gray-900">{selectedApplication.name}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Email</p>
+                        <p className="text-gray-900">{selectedApplication.email}</p>
+                      </div>
+                      {selectedApplication.phone && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Phone</p>
+                          <p className="text-gray-900">{selectedApplication.phone}</p>
+                        </div>
+                      )}
+                      {selectedApplication.dateOfBirth && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Date of Birth</p>
+                          <p className="text-gray-900">{formatDate(selectedApplication.dateOfBirth)}</p>
+                        </div>
+                      )}
+                      {selectedApplication.nationality && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Nationality</p>
+                          <p className="text-gray-900">{selectedApplication.nationality}</p>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
+                  </CardContent>
+                </Card>
 
                 {/* Academic Information */}
-                {(selectedApplication.currentInstitution || selectedApplication.fieldOfStudy || selectedApplication.currentYear || selectedApplication.gpa || selectedApplication.expectedGraduation) && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Academic Information</h3>
-                    <div className="space-y-2 text-sm">
-                      {selectedApplication.currentInstitution && <p><strong>Current Institution:</strong> {selectedApplication.currentInstitution}</p>}
-                      {selectedApplication.fieldOfStudy && <p><strong>Field of Study:</strong> {selectedApplication.fieldOfStudy}</p>}
-                      {selectedApplication.currentYear && <p><strong>Current Year:</strong> {selectedApplication.currentYear}</p>}
-                      {selectedApplication.gpa && <p><strong>GPA:</strong> {selectedApplication.gpa}</p>}
-                      {selectedApplication.expectedGraduation && <p><strong>Expected Graduation:</strong> {new Date(selectedApplication.expectedGraduation).toLocaleDateString()}</p>}
-                    </div>
-                  </div>
+                {(selectedApplication.currentInstitution || selectedApplication.fieldOfStudy || selectedApplication.gpa) && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Academic Information</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {selectedApplication.currentInstitution && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Current Institution</p>
+                            <p className="text-gray-900">{selectedApplication.currentInstitution}</p>
+                          </div>
+                        )}
+                        {selectedApplication.fieldOfStudy && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Field of Study</p>
+                            <p className="text-gray-900">{selectedApplication.fieldOfStudy}</p>
+                          </div>
+                        )}
+                        {selectedApplication.currentYear && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Current Year</p>
+                            <p className="text-gray-900">{selectedApplication.currentYear}</p>
+                          </div>
+                        )}
+                        {selectedApplication.gpa && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">GPA</p>
+                            <p className="text-gray-900">{selectedApplication.gpa}</p>
+                          </div>
+                        )}
+                        {selectedApplication.expectedGraduation && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Expected Graduation</p>
+                            <p className="text-gray-900">{formatDate(selectedApplication.expectedGraduation)}</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {/* Intended Program */}
-                {(selectedApplication.intendedUniversity || selectedApplication.intendedProgram || selectedApplication.intendedCountry || selectedApplication.financialNeed) && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Intended Program</h3>
-                    <div className="space-y-2 text-sm">
-                      {selectedApplication.intendedUniversity && <p><strong>Intended University:</strong> {selectedApplication.intendedUniversity}</p>}
-                      {selectedApplication.intendedProgram && <p><strong>Intended Program:</strong> {selectedApplication.intendedProgram}</p>}
-                      {selectedApplication.intendedCountry && <p><strong>Intended Country:</strong> {selectedApplication.intendedCountry}</p>}
-                      {selectedApplication.financialNeed && <p><strong>Financial Need:</strong> {selectedApplication.financialNeed}</p>}
-                    </div>
-                  </div>
+                {(selectedApplication.intendedUniversity || selectedApplication.intendedProgram || selectedApplication.intendedCountry) && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Intended Program</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {selectedApplication.intendedUniversity && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Intended University</p>
+                            <p className="text-gray-900">{selectedApplication.intendedUniversity}</p>
+                          </div>
+                        )}
+                        {selectedApplication.intendedProgram && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Intended Program</p>
+                            <p className="text-gray-900">{selectedApplication.intendedProgram}</p>
+                          </div>
+                        )}
+                        {selectedApplication.intendedCountry && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Intended Country</p>
+                            <p className="text-gray-900">{selectedApplication.intendedCountry}</p>
+                          </div>
+                        )}
+                        {selectedApplication.financialNeed && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">Financial Need</p>
+                            <p className="text-gray-900">{selectedApplication.financialNeed}</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
 
-                {/* Achievements and Experience */}
-                {(selectedApplication.achievements || selectedApplication.extracurricular || selectedApplication.workExperience || selectedApplication.researchExperience || selectedApplication.publications || selectedApplication.awards || selectedApplication.references) && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Achievements and Experience</h3>
-                    <div className="space-y-2 text-sm">
-                      {selectedApplication.achievements && <p><strong>Achievements:</strong> {selectedApplication.achievements}</p>}
-                      {selectedApplication.extracurricular && <p><strong>Extracurricular Activities:</strong> {selectedApplication.extracurricular}</p>}
-                      {selectedApplication.workExperience && <p><strong>Work Experience:</strong> {selectedApplication.workExperience}</p>}
-                      {selectedApplication.researchExperience && <p><strong>Research Experience:</strong> {selectedApplication.researchExperience}</p>}
-                      {selectedApplication.publications && <p><strong>Publications:</strong> {selectedApplication.publications}</p>}
-                      {selectedApplication.awards && <p><strong>Awards:</strong> {selectedApplication.awards}</p>}
-                      {selectedApplication.references && <p><strong>References:</strong> {selectedApplication.references}</p>}
-                    </div>
-                  </div>
+                {/* Additional Information */}
+                {(selectedApplication.achievements || selectedApplication.motivation || selectedApplication.futureGoals) && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Additional Information</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {selectedApplication.achievements && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600 mb-2">Achievements</p>
+                            <p className="text-gray-900 whitespace-pre-wrap">{selectedApplication.achievements}</p>
+                          </div>
+                        )}
+                        {selectedApplication.motivation && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600 mb-2">Motivation</p>
+                            <p className="text-gray-900 whitespace-pre-wrap">{selectedApplication.motivation}</p>
+                          </div>
+                        )}
+                        {selectedApplication.futureGoals && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-600 mb-2">Future Goals</p>
+                            <p className="text-gray-900 whitespace-pre-wrap">{selectedApplication.futureGoals}</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
-
-                {/* Motivation and Goals */}
-                {(selectedApplication.motivation || selectedApplication.futureGoals || selectedApplication.additionalInfo) && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Motivation and Goals</h3>
-                    <div className="space-y-2 text-sm">
-                      {selectedApplication.motivation && <p><strong>Motivation:</strong> {selectedApplication.motivation}</p>}
-                      {selectedApplication.futureGoals && <p><strong>Future Goals:</strong> {selectedApplication.futureGoals}</p>}
-                      {selectedApplication.additionalInfo && <p><strong>Additional Information:</strong> {selectedApplication.additionalInfo}</p>}
-                    </div>
-                  </div>
-                )}
-
-                {/* Message */}
-                {selectedApplication.message && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Message</h3>
-                    <p className="text-sm bg-gray-50 p-3 rounded">{selectedApplication.message}</p>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-6 border-t">
-                  <Button 
-                    onClick={() => handleStatusUpdate(selectedApplication.id, 'ACCEPTED')}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Accept Application
-                  </Button>
-                  <Button 
-                    onClick={() => handleStatusUpdate(selectedApplication.id, 'REJECTED')}
-                    variant="destructive"
-                  >
-                    <XCircle className="h-4 w-4 mr-2" />
-                    Reject Application
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => setSelectedApplication(null)}
-                  >
-                    Close
-                  </Button>
-                </div>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
-
-      {filteredApplications.length === 0 && (
-        <div className="text-center py-12">
-          <User className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No applications found</h3>
-          <p className="text-gray-500">Try adjusting your search or filters</p>
-        </div>
-      )}
     </div>
   )
 }

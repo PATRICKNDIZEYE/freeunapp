@@ -11,14 +11,21 @@ export default async function DashboardPage() {
     redirect('/auth/signin')
   }
 
-  // Find the admin user
-  const adminUser = await prisma.user.findFirst({
+  // Find the user
+  const user = await prisma.user.findFirst({
     where: { email: session.user.email }
   })
 
-  if (!adminUser) {
+  if (!user) {
     redirect('/auth/signin')
   }
+
+  // Redirect students to student dashboard
+  if (user.role === 'STUDENT') {
+    redirect('/dashboard/student')
+  }
+
+  // Continue with admin dashboard for admins
 
   // Fetch dashboard stats and notifications
   const [stats, notifications] = await Promise.all([
@@ -29,7 +36,7 @@ export default async function DashboardPage() {
       prisma.application.count(),
     ]),
     prisma.notification.findMany({
-      where: { userId: adminUser.id },
+      where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
       take: 10
     })
@@ -39,7 +46,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <DashboardNav user={adminUser} notifications={notifications} />
+      <DashboardNav user={user} notifications={notifications} />
       
       <div className="p-6">
         <div className="max-w-7xl mx-auto">

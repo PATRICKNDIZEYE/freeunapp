@@ -11,7 +11,33 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { scholarshipId } = body
+    const { 
+      scholarshipId,
+      name,
+      email,
+      phone,
+      dateOfBirth,
+      nationality,
+      currentInstitution,
+      fieldOfStudy,
+      currentYear,
+      gpa,
+      expectedGraduation,
+      intendedUniversity,
+      intendedProgram,
+      intendedCountry,
+      financialNeed,
+      achievements,
+      extracurricular,
+      workExperience,
+      researchExperience,
+      publications,
+      awards,
+      references,
+      motivation,
+      futureGoals,
+      additionalInfo
+    } = body
 
     if (!scholarshipId) {
       return NextResponse.json({ error: 'Scholarship ID is required' }, { status: 400 })
@@ -55,15 +81,47 @@ export async function POST(req: Request) {
       })
     }
 
-    // Create application
+    // Create comprehensive application
     const application = await prisma.application.create({
       data: {
-        name: session.user.name || 'Anonymous',
-        email: session.user.email!,
+        name: name || session.user.name || 'Anonymous',
+        email: email || session.user.email!,
+        phone: phone || null,
         message: `Applied via FreeUnApp platform`,
         status: 'APPLIED',
         scholarshipId: scholarshipId,
-        appliedAt: new Date()
+        appliedAt: new Date(),
+        
+        // Personal Information
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+        nationality: nationality || null,
+        
+        // Academic Information
+        currentInstitution: currentInstitution || null,
+        fieldOfStudy: fieldOfStudy || null,
+        currentYear: currentYear || null,
+        gpa: gpa ? parseFloat(gpa) : null,
+        expectedGraduation: expectedGraduation ? new Date(expectedGraduation) : null,
+        
+        // Intended Program
+        intendedUniversity: intendedUniversity || null,
+        intendedProgram: intendedProgram || null,
+        intendedCountry: intendedCountry || null,
+        financialNeed: financialNeed || null,
+        
+        // Achievements and Experience
+        achievements: achievements || null,
+        extracurricular: extracurricular || null,
+        workExperience: workExperience || null,
+        researchExperience: researchExperience || null,
+        publications: publications || null,
+        awards: awards || null,
+        references: references || null,
+        
+        // Motivation and Goals
+        motivation: motivation || null,
+        futureGoals: futureGoals || null,
+        additionalInfo: additionalInfo || null
       }
     })
 

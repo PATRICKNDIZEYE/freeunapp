@@ -105,8 +105,8 @@ export default async function ResourcesPage({ searchParams }: PageProps) {
           </Card>
         </div>
 
-        {/* Add New Resource Button */}
-        {session?.user && (
+        {/* Add New Resource Button - Only for Admins */}
+        {session?.user && (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN') && (
           <div className="mb-8">
             <Link href="/dashboard/resources/new">
               <Button className="bg-brand-blue hover:bg-primary-900">
