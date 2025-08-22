@@ -49,6 +49,40 @@ export function UsersList({ users }: UsersListProps) {
   const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [profileFilter, setProfileFilter] = useState('all')
+  const [approvingUsers, setApprovingUsers] = useState<Set<string>>(new Set())
+
+  const handleApproveUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to approve this admin user?')) {
+      return
+    }
+
+    setApprovingUsers(prev => new Set(prev).add(userId))
+
+    try {
+      const response = await fetch(`/api/users/${userId}/approve`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        alert('User approved successfully!')
+        // Refresh the page to show updated status
+        window.location.reload()
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to approve user')
+      }
+    } catch (error) {
+      console.error('Error approving user:', error)
+      alert('Failed to approve user')
+    } finally {
+      setApprovingUsers(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(userId)
+        return newSet
+      })
+    }
+  }
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -222,6 +256,25 @@ export function UsersList({ users }: UsersListProps) {
                         Edit User
                       </Link>
                     </DropdownMenuItem>
+                    {!user.approved && user.role === 'ADMIN' && (
+                      <DropdownMenuItem 
+                        onClick={() => handleApproveUser(user.id)}
+                        className="text-green-600"
+                        disabled={approvingUsers.has(user.id)}
+                      >
+                        {approvingUsers.has(user.id) ? (
+                          <>
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent mr-2" />
+                            Approving...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Approve Admin
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem className="text-red-600">
                       <Trash2 className="h-4 w-4 mr-2" />
                       Delete User

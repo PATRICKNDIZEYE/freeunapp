@@ -95,6 +95,15 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
     )
   }
 
+  // Separate active and expired scholarships
+  const now = new Date()
+  const activeScholarships = filteredScholarships.filter(scholarship => 
+    new Date(scholarship.deadline) > now
+  )
+  const expiredScholarships = filteredScholarships.filter(scholarship => 
+    new Date(scholarship.deadline) <= now
+  )
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -132,16 +141,16 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
           </Card>
         </div>
 
-        {/* Filters */}
-        <div className="mb-8">
+        {/* Filters - Sticky */}
+        <div className="sticky top-0 z-10 bg-gray-50 py-4 mb-8 border-b border-gray-200">
           <ScholarshipsFilter />
         </div>
 
-        {/* Results */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between">
+        {/* Active Scholarships */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">
-              {filteredScholarships.length} Scholarship{filteredScholarships.length !== 1 ? 's' : ''} Found
+              Active Scholarships ({activeScholarships.length})
             </h2>
             {Object.keys(searchParams).length > 0 && (
               <div className="text-sm text-gray-500">
@@ -149,17 +158,34 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
               </div>
             )}
           </div>
+
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
+              <span className="ml-3 text-gray-600">Loading scholarships...</span>
+            </div>
+          }>
+            <ScholarshipsList scholarships={activeScholarships} />
+          </Suspense>
         </div>
 
-        {/* Scholarships List */}
-        <Suspense fallback={
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
-            <span className="ml-3 text-gray-600">Loading scholarships...</span>
+        {/* Expired Scholarships */}
+        {expiredScholarships.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-500">
+                Expired Scholarships ({expiredScholarships.length})
+              </h2>
+              <div className="text-sm text-gray-400">
+                Past deadlines
+              </div>
+            </div>
+
+            <div className="opacity-60">
+              <ScholarshipsList scholarships={expiredScholarships} />
+            </div>
           </div>
-        }>
-          <ScholarshipsList scholarships={filteredScholarships} />
-        </Suspense>
+        )}
       </div>
 
       <Footer />

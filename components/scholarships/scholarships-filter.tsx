@@ -269,7 +269,7 @@ export function ScholarshipsFilter() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any Deadline</SelectItem>
-              <SelectItem value="7">Within 7 Days</SelectItem>
+              <SelectItem value="7">Within 7 Days (Urgent)</SelectItem>
               <SelectItem value="30">Within 30 Days</SelectItem>
               <SelectItem value="90">Within 90 Days</SelectItem>
               <SelectItem value="180">Within 180 Days</SelectItem>

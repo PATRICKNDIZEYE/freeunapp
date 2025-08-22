@@ -54,6 +54,11 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // Check if admin user is approved
+        if (user.role === 'ADMIN' && !user.approved) {
+          throw new Error('Your admin account is pending approval. Please contact the super administrator.')
+        }
+
         return {
           id: user.id,
           email: user.email,

@@ -88,6 +88,10 @@ export function ResourcesFilter() {
               <SelectItem value="GUIDE">Guide</SelectItem>
               <SelectItem value="ESSAY_EXAMPLE">Essay Example</SelectItem>
               <SelectItem value="APPLICATION_TIP">Application Tip</SelectItem>
+              <SelectItem value="CALENDAR">Calendar</SelectItem>
+              <SelectItem value="TEMPLATE">Template</SelectItem>
+              <SelectItem value="CHECKLIST">Checklist</SelectItem>
+              <SelectItem value="SAMPLE">Sample</SelectItem>
               <SelectItem value="OTHER">Other</SelectItem>
             </SelectContent>
           </Select>

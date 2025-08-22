@@ -57,7 +57,16 @@ export default function SignUpPage() {
       })
 
       if (response.ok) {
-        // Sign in the user after successful signup
+        const data = await response.json()
+        
+        // If admin account created, show message and redirect to signin
+        if (formData.role === 'ADMIN') {
+          alert(data.message || 'Admin account created successfully. Please wait for approval.')
+          router.push('/auth/signin')
+          return
+        }
+        
+        // For students, sign them in automatically
         const result = await signIn('credentials', {
           email: formData.email,
           password: formData.password,

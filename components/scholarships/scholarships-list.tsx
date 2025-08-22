@@ -99,6 +99,18 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
     return diffDays <= 30 && diffDays > 0
   }
 
+  const getDaysRemaining = (deadline: Date) => {
+    const now = new Date()
+    const deadlineDate = new Date(deadline)
+    const diffTime = deadlineDate.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays < 0) return 'Expired'
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return '1 day left'
+    return `${diffDays} days left`
+  }
+
   if (scholarships.length === 0) {
     return (
       <div className="text-center py-12">
@@ -151,6 +163,9 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                       day: 'numeric', 
                       year: 'numeric' 
                     })}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    ({getDaysRemaining(scholarship.deadline)})
                   </span>
                 </div>
               </div>
