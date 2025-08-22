@@ -191,11 +191,21 @@ export default async function AdminResourcesPage() {
                         >
                           Download
                         </a>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                          </svg>
-                        </button>
+                        <form action={`/api/resources/${resource.id}`} method="DELETE" className="inline">
+                          <button
+                            type="submit"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              if (confirm('Are you sure you want to delete this resource?')) {
+                                fetch(`/api/resources/${resource.id}`, { method: 'DELETE' })
+                                  .then(() => window.location.reload())
+                              }
+                            }}
+                            className="text-red-600 hover:text-red-700 text-sm font-medium"
+                          >
+                            Delete
+                          </button>
+                        </form>
                       </div>
                     </div>
                   </div>

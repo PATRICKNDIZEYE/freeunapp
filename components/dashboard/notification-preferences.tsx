@@ -230,7 +230,7 @@ export function NotificationPreferences({ user, currentPreferences }: Notificati
         <Button 
           onClick={handleSave} 
           disabled={isSaving}
-          className="bg-brand-blue hover:bg-primary-900"
+                      className="bg-brand-blue hover:bg-primary-900 text-white"
         >
           {isSaving ? (
             'Saving...'

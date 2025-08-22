@@ -103,8 +103,8 @@ export async function POST(req: Request) {
       detailedDescription,
       amount,
       amountType,
-      category,
-      degreeLevel,
+      categories,
+      degreeLevels,
       deadline,
       eligibilityCriteria,
       applicationProcess,
@@ -112,6 +112,7 @@ export async function POST(req: Request) {
       awardsAvailable,
       contactInfo,
       referenceUrl,
+      logoUrl,
       status
     } = body
 
@@ -131,8 +132,8 @@ export async function POST(req: Request) {
         detailedDescription,
         amount,
         amountType,
-        category,
-        degreeLevel,
+        category: categories[0], // Use first category as primary
+        degreeLevel: degreeLevels[0], // Use first degree level as primary
         deadline: new Date(deadline),
         eligibilityCriteria,
         applicationProcess,
@@ -140,6 +141,7 @@ export async function POST(req: Request) {
         awardsAvailable: awardsAvailable ? parseInt(awardsAvailable) : null,
         contactInfo,
         referenceUrl,
+        logoUrl,
         status,
         admin: {
           connect: {

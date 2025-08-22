@@ -286,7 +286,7 @@ export function StudentDashboard({
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button asChild className="h-auto p-4 flex-col gap-2 bg-brand-blue hover:bg-blue-700">
+                <Button asChild className="h-auto p-4 flex-col gap-2 bg-brand-blue hover:bg-blue-700 text-white">
                   <Link href="/scholarships">
                     <Search className="h-5 w-5" />
                     <span className="text-sm">Browse Scholarships</span>

@@ -256,7 +256,6 @@ export function ScholarshipsFilter() {
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="FULL">Full Funding</SelectItem>
               <SelectItem value="PARTIAL">Partial Funding</SelectItem>
-              <SelectItem value="CUSTOM">Custom Amount</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -270,9 +269,10 @@ export function ScholarshipsFilter() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any Deadline</SelectItem>
-              <SelectItem value="1month">Within 1 Month</SelectItem>
-              <SelectItem value="3months">Within 3 Months</SelectItem>
-              <SelectItem value="6months">Within 6 Months</SelectItem>
+              <SelectItem value="7">Within 7 Days</SelectItem>
+              <SelectItem value="30">Within 30 Days</SelectItem>
+              <SelectItem value="90">Within 90 Days</SelectItem>
+              <SelectItem value="180">Within 180 Days</SelectItem>
             </SelectContent>
           </Select>
         </div>

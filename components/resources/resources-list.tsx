@@ -62,10 +62,17 @@ export function ResourcesList({ resources }: ResourcesListProps) {
         method: 'POST'
       })
       
-      // Open file in new tab
-      window.open(fileUrl, '_blank')
+      // Create a temporary link element to trigger download
+      const link = document.createElement('a')
+      link.href = fileUrl
+      link.download = fileUrl.split('/').pop() || 'resource'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     } catch (error) {
       console.error('Error downloading resource:', error)
+      // Fallback to opening in new tab
+      window.open(fileUrl, '_blank')
     }
   }
 
@@ -101,12 +108,10 @@ export function ResourcesList({ resources }: ResourcesListProps) {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'APPLICATION_GUIDE': return 'bg-green-100 text-green-800'
-      case 'ESSAY_TEMPLATE': return 'bg-blue-100 text-blue-800'
-      case 'RESUME_TEMPLATE': return 'bg-purple-100 text-purple-800'
-      case 'REFERENCE_LETTER': return 'bg-yellow-100 text-yellow-800'
-      case 'STUDY_MATERIAL': return 'bg-indigo-100 text-indigo-800'
-      case 'INTERVIEW_PREP': return 'bg-pink-100 text-pink-800'
+      case 'GUIDE': return 'bg-green-100 text-green-800'
+      case 'ESSAY_EXAMPLE': return 'bg-blue-100 text-blue-800'
+      case 'APPLICATION_TIP': return 'bg-purple-100 text-purple-800'
+      case 'OTHER': return 'bg-gray-100 text-gray-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -145,23 +150,17 @@ export function ResourcesList({ resources }: ResourcesListProps) {
             <DropdownMenuItem onClick={() => setCategoryFilter('all')}>
               All Categories
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setCategoryFilter('APPLICATION_GUIDE')}>
-              Application Guide
+            <DropdownMenuItem onClick={() => setCategoryFilter('GUIDE')}>
+              Guide
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setCategoryFilter('ESSAY_TEMPLATE')}>
-              Essay Template
+            <DropdownMenuItem onClick={() => setCategoryFilter('ESSAY_EXAMPLE')}>
+              Essay Example
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setCategoryFilter('RESUME_TEMPLATE')}>
-              Resume Template
+            <DropdownMenuItem onClick={() => setCategoryFilter('APPLICATION_TIP')}>
+              Application Tip
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setCategoryFilter('REFERENCE_LETTER')}>
-              Reference Letter
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setCategoryFilter('STUDY_MATERIAL')}>
-              Study Material
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setCategoryFilter('INTERVIEW_PREP')}>
-              Interview Prep
+            <DropdownMenuItem onClick={() => setCategoryFilter('OTHER')}>
+              Other
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -209,7 +208,11 @@ export function ResourcesList({ resources }: ResourcesListProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredResources.map((resource) => (
-          <Card key={resource.id} className="hover:shadow-lg transition-shadow">
+          <Card 
+            key={resource.id} 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => window.open(resource.fileUrl, '_blank')}
+          >
             <CardHeader>
               <div className="flex items-start justify-between">
                 <CardTitle className="text-lg line-clamp-2">{resource.title}</CardTitle>
@@ -241,7 +244,10 @@ export function ResourcesList({ resources }: ResourcesListProps) {
               
               <div className="flex gap-2 pt-2">
                 <Button 
-                  onClick={() => handleDownload(resource.id, resource.fileUrl)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDownload(resource.id, resource.fileUrl)
+                  }}
                   className="flex-1"
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -249,7 +255,10 @@ export function ResourcesList({ resources }: ResourcesListProps) {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => window.open(resource.fileUrl, '_blank')}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    window.open(resource.fileUrl, '_blank')
+                  }}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>

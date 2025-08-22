@@ -28,8 +28,8 @@ export default function NewScholarshipPage() {
     detailedDescription: '',
     amount: '',
     amountType: 'PARTIAL',
-    category: 'COMPUTER_SCIENCE',
-    degreeLevel: 'BACHELOR',
+    categories: ['COMPUTER_SCIENCE'],
+    degreeLevels: ['BACHELOR'],
     deadline: '',
     eligibilityCriteria: '',
     applicationProcess: '',
@@ -37,6 +37,7 @@ export default function NewScholarshipPage() {
     awardsAvailable: '',
     contactInfo: '',
     referenceUrl: '',
+    logoUrl: '',
     status: 'DRAFT'
   })
 
@@ -45,6 +46,19 @@ export default function NewScholarshipPage() {
     setLoading(true)
     
     try {
+      // Validate that at least one category and degree level is selected
+      if (formData.categories.length === 0) {
+        alert('Please select at least one category')
+        setLoading(false)
+        return
+      }
+      
+      if (formData.degreeLevels.length === 0) {
+        alert('Please select at least one degree level')
+        setLoading(false)
+        return
+      }
+      
       const response = await fetch('/api/scholarships', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -53,9 +67,13 @@ export default function NewScholarshipPage() {
       
       if (response.ok) {
         router.push('/dashboard/scholarships')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to create scholarship')
       }
     } catch (error) {
       console.error('Error creating scholarship:', error)
+      alert('Failed to create scholarship')
     } finally {
       setLoading(false)
     }
@@ -161,59 +179,97 @@ export default function NewScholarshipPage() {
                       <SelectContent>
                         <SelectItem value="FULL">Full Funding</SelectItem>
                         <SelectItem value="PARTIAL">Partial Funding</SelectItem>
-                        <SelectItem value="CUSTOM">Custom Amount</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="category">Category *</Label>
-                    <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="COMPUTER_SCIENCE">Computer Science</SelectItem>
-                        <SelectItem value="ENGINEERING">Engineering</SelectItem>
-                        <SelectItem value="MEDICINE">Medicine</SelectItem>
-                        <SelectItem value="BUSINESS">Business</SelectItem>
-                        <SelectItem value="ARTS">Arts</SelectItem>
-                        <SelectItem value="SOCIAL_SCIENCES">Social Sciences</SelectItem>
-                        <SelectItem value="NATURAL_SCIENCES">Natural Sciences</SelectItem>
-                        <SelectItem value="MATHEMATICS">Mathematics</SelectItem>
-                        <SelectItem value="LAW">Law</SelectItem>
-                        <SelectItem value="EDUCATION">Education</SelectItem>
-                        <SelectItem value="OTHER">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="categories">Categories *</Label>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'COMPUTER_SCIENCE', label: 'Computer Science' },
+                        { value: 'ENGINEERING', label: 'Engineering' },
+                        { value: 'MEDICINE', label: 'Medicine' },
+                        { value: 'BUSINESS', label: 'Business' },
+                        { value: 'ARTS', label: 'Arts' },
+                        { value: 'SOCIAL_SCIENCES', label: 'Social Sciences' },
+                        { value: 'NATURAL_SCIENCES', label: 'Natural Sciences' },
+                        { value: 'MATHEMATICS', label: 'Mathematics' },
+                        { value: 'LAW', label: 'Law' },
+                        { value: 'EDUCATION', label: 'Education' },
+                        { value: 'OTHER', label: 'Other' }
+                      ].map((category) => (
+                        <label key={category.value} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={formData.categories.includes(category.value)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData({
+                                  ...formData,
+                                  categories: [...formData.categories, category.value]
+                                })
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  categories: formData.categories.filter(c => c !== category.value)
+                                })
+                              }
+                            }}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">{category.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   <div>
-                    <Label htmlFor="degreeLevel">Degree Level *</Label>
-                    <Select value={formData.degreeLevel} onValueChange={(value) => setFormData({ ...formData, degreeLevel: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="BACHELOR">Bachelor's</SelectItem>
-                        <SelectItem value="MASTER">Master's</SelectItem>
-                        <SelectItem value="PHD">PhD</SelectItem>
-                        <SelectItem value="CERTIFICATE">Certificate</SelectItem>
-                        <SelectItem value="DIPLOMA">Diploma</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="degreeLevels">Degree Levels *</Label>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'BACHELOR', label: "Bachelor's" },
+                        { value: 'MASTER', label: "Master's" },
+                        { value: 'PHD', label: 'PhD' },
+                        { value: 'CERTIFICATE', label: 'Certificate' },
+                        { value: 'DIPLOMA', label: 'Diploma' }
+                      ].map((degree) => (
+                        <label key={degree.value} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={formData.degreeLevels.includes(degree.value)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData({
+                                  ...formData,
+                                  degreeLevels: [...formData.degreeLevels, degree.value]
+                                })
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  degreeLevels: formData.degreeLevels.filter(d => d !== degree.value)
+                                })
+                              }
+                            }}
+                            className="rounded border-gray-300"
+                          />
+                          <span className="text-sm">{degree.label}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="awardsAvailable">Awards Available</Label>
-                    <Input
-                      id="awardsAvailable"
-                      type="number"
-                      value={formData.awardsAvailable}
-                      onChange={(e) => setFormData({ ...formData, awardsAvailable: e.target.value })}
-                      placeholder="Number of awards"
-                    />
-                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="awardsAvailable">Awards Available</Label>
+                  <Input
+                    id="awardsAvailable"
+                    type="number"
+                    value={formData.awardsAvailable}
+                    onChange={(e) => setFormData({ ...formData, awardsAvailable: e.target.value })}
+                    placeholder="Number of awards"
+                  />
                 </div>
 
                 <div>
@@ -295,6 +351,20 @@ export default function NewScholarshipPage() {
                     onChange={(e) => setFormData({ ...formData, referenceUrl: e.target.value })}
                     placeholder="Official scholarship website"
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="logoUrl">School Logo URL</Label>
+                  <Input
+                    id="logoUrl"
+                    type="url"
+                    value={formData.logoUrl}
+                    onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                    placeholder="URL to school/organization logo"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    This logo will appear on scholarship cards instead of the first letter
+                  </p>
                 </div>
               </CardContent>
             </Card>

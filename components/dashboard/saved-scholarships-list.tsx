@@ -398,7 +398,7 @@ export function SavedScholarshipsList({ savedScholarships }: SavedScholarshipsLi
                 <div className="flex gap-3">
                   <Button 
                     onClick={() => handleApply(selectedScholarship.scholarship.id)}
-                    className="flex-1 bg-brand-blue hover:bg-blue-700"
+                    className="flex-1 bg-brand-blue hover:bg-blue-700 text-white"
                     disabled={isDeadlineExpired(selectedScholarship.scholarship.deadline)}
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />

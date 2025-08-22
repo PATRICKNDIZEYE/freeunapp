@@ -111,7 +111,7 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Card>
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center mb-2">
@@ -119,24 +119,6 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
               </div>
               <div className="text-2xl font-bold text-blue-600">{totalScholarships}</div>
               <div className="text-sm text-gray-600">Active Scholarships</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Users className="h-6 w-6 text-green-600" />
-              </div>
-              <div className="text-2xl font-bold text-green-600">{totalStudents}</div>
-              <div className="text-sm text-gray-600">Students</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center mb-2">
-                <Award className="h-6 w-6 text-purple-600" />
-              </div>
-              <div className="text-2xl font-bold text-purple-600">{totalApplications}</div>
-              <div className="text-sm text-gray-600">Applications</div>
             </CardContent>
           </Card>
           <Card>
@@ -170,7 +152,12 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
         </div>
 
         {/* Scholarships List */}
-        <Suspense fallback={<div>Loading scholarships...</div>}>
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div>
+            <span className="ml-3 text-gray-600">Loading scholarships...</span>
+          </div>
+        }>
           <ScholarshipsList scholarships={filteredScholarships} />
         </Suspense>
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,7 +14,8 @@ import {
   Users,
   Eye,
   Clock,
-  Award
+  Award,
+  CheckCircle
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -65,6 +66,38 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
   const [showApplicationModal, setShowApplicationModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
+
+  // Check if scholarship is saved and applied on component mount
+  useEffect(() => {
+    if (user) {
+      checkSavedStatus()
+      checkApplicationStatus()
+    }
+  }, [user, scholarship.id])
+
+  const checkSavedStatus = async () => {
+    try {
+      const response = await fetch(`/api/scholarships/save?scholarshipId=${scholarship.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setIsSaved(data.saved)
+      }
+    } catch (error) {
+      console.error('Error checking saved status:', error)
+    }
+  }
+
+  const checkApplicationStatus = async () => {
+    try {
+      const response = await fetch(`/api/scholarships/${scholarship.id}/applications/check`)
+      if (response.ok) {
+        const data = await response.json()
+        setIsApplied(data.applied)
+      }
+    } catch (error) {
+      console.error('Error checking application status:', error)
+    }
+  }
 
   // Registration form state
   const [registrationData, setRegistrationData] = useState({
@@ -206,6 +239,24 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
     window.open(whatsappUrl, '_blank')
   }
 
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      // You could add a toast notification here
+      alert('Link copied to clipboard!')
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = window.location.href
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      alert('Link copied to clipboard!')
+    }
+  }
+
   const getAmountColor = (amountType: string) => {
     switch (amountType) {
       case 'FULL': return 'bg-green-100 text-green-800'
@@ -267,14 +318,14 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
                     <GraduationCap className="h-4 w-4" />
                     <span>{scholarship.degreeLevel}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Users className="h-4 w-4" />
-                    <span>{scholarship._count.applications} applications</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Heart className="h-4 w-4" />
-                    <span>{scholarship._count.savedBy} saved</span>
-                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Clock className="h-4 w-4" />
+                  <span>{scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString() : 'TBD'}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Award className="h-4 w-4" />
+                  <span>{scholarship.awardsAvailable || 'N/A'} awards</span>
+                </div>
                 </div>
               </div>
 
@@ -291,12 +342,31 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={handleCopyLink}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Copy Link
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   className={isSaved ? "text-red-500 hover:text-red-700" : ""}
                   onClick={handleSave}
                 >
                   <Heart className="h-4 w-4 mr-2" />
                   {isSaved ? 'Saved' : 'Save'}
                 </Button>
+                {isApplied && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-green-600 border-green-600"
+                    disabled
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Applied
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -372,15 +442,12 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
             {!isDeadlineExpired(scholarship.deadline) ? (
               <div className="space-y-3">
                 <Button 
-                  className="w-full bg-brand-blue hover:bg-primary-900"
+                  className="w-full bg-brand-blue hover:bg-primary-900 text-white"
                   onClick={handleApply}
                   disabled={isApplied}
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
-                  {isApplied ? 'Applied' : 'Apply for Myself'}
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Apply for Me
+                  {isApplied ? 'Applied' : 'Apply Now'}
                 </Button>
               </div>
             ) : (
@@ -391,14 +458,14 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
 
             {scholarship.referenceUrl && (
               <div className="mt-4 pt-4 border-t">
-                <h4 className="font-semibold mb-2">Official Website</h4>
+                <h4 className="font-semibold mb-2">School Official Website</h4>
                 <a 
                   href={scholarship.referenceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand-blue hover:text-primary-900 underline text-sm"
                 >
-                  Visit Official Website
+                  Visit School Official Website
                 </a>
               </div>
             )}

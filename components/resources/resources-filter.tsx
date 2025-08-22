@@ -21,7 +21,9 @@ export function ResourcesFilter() {
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || '',
     category: searchParams.get('category') || 'all',
-    type: searchParams.get('type') || 'all'
+    type: searchParams.get('type') || 'all',
+    dateRange: searchParams.get('dateRange') || 'all',
+    uploader: searchParams.get('uploader') || 'all'
   })
 
   const handleFilterChange = (key: string, value: string) => {
@@ -40,7 +42,9 @@ export function ResourcesFilter() {
     setFilters({
       search: '',
       category: 'all',
-      type: 'all'
+      type: 'all',
+      dateRange: 'all',
+      uploader: 'all'
     })
     router.push('/resources')
   }
@@ -81,20 +85,17 @@ export function ResourcesFilter() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="APPLICATION_GUIDE">Application Guide</SelectItem>
-              <SelectItem value="ESSAY_TEMPLATE">Essay Template</SelectItem>
-              <SelectItem value="RESUME_TEMPLATE">Resume Template</SelectItem>
-              <SelectItem value="REFERENCE_LETTER">Reference Letter</SelectItem>
-              <SelectItem value="STUDY_MATERIAL">Study Material</SelectItem>
-              <SelectItem value="INTERVIEW_PREP">Interview Prep</SelectItem>
+              <SelectItem value="GUIDE">Guide</SelectItem>
+              <SelectItem value="ESSAY_EXAMPLE">Essay Example</SelectItem>
+              <SelectItem value="APPLICATION_TIP">Application Tip</SelectItem>
               <SelectItem value="OTHER">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* File Type */}
+        {/* Resource Type */}
         <div>
-          <Label htmlFor="type">File Type</Label>
+          <Label htmlFor="type">Resource Type</Label>
           <Select value={filters.type} onValueChange={(value) => handleFilterChange('type', value)}>
             <SelectTrigger>
               <div className="flex items-center gap-2">
@@ -104,13 +105,41 @@ export function ResourcesFilter() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="pdf">PDF</SelectItem>
-              <SelectItem value="doc">DOC</SelectItem>
-              <SelectItem value="docx">DOCX</SelectItem>
-              <SelectItem value="ppt">PPT</SelectItem>
-              <SelectItem value="pptx">PPTX</SelectItem>
-              <SelectItem value="xls">XLS</SelectItem>
-              <SelectItem value="xlsx">XLSX</SelectItem>
+              <SelectItem value="GUIDE">Guide</SelectItem>
+              <SelectItem value="ESSAY_EXAMPLE">Essay Example</SelectItem>
+              <SelectItem value="APPLICATION_TIP">Application Tip</SelectItem>
+              <SelectItem value="OTHER">Other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Date Range */}
+        <div>
+          <Label htmlFor="dateRange">Date Range</Label>
+          <Select value={filters.dateRange} onValueChange={(value) => handleFilterChange('dateRange', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Time" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="week">This Week</SelectItem>
+              <SelectItem value="month">This Month</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Uploader */}
+        <div>
+          <Label htmlFor="uploader">Uploader</Label>
+          <Select value={filters.uploader} onValueChange={(value) => handleFilterChange('uploader', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Uploaders" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Uploaders</SelectItem>
+              <SelectItem value="admin">Admins</SelectItem>
+              <SelectItem value="super_admin">Super Admins</SelectItem>
             </SelectContent>
           </Select>
         </div>

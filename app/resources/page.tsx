@@ -15,6 +15,8 @@ interface PageProps {
     search?: string
     category?: string
     type?: string
+    dateRange?: string
+    uploader?: string
   }
 }
 
@@ -26,7 +28,8 @@ export default async function ResourcesPage({ searchParams }: PageProps) {
       include: {
         admin: {
           select: {
-            name: true
+            name: true,
+            role: true
           }
         }
       },
@@ -61,8 +64,42 @@ export default async function ResourcesPage({ searchParams }: PageProps) {
 
   if (searchParams.type && searchParams.type !== 'all') {
     filteredResources = filteredResources.filter(resource =>
-      resource.type.toLowerCase() === searchParams.type!.toLowerCase()
+      resource.type === searchParams.type
     )
+  }
+
+  if (searchParams.dateRange && searchParams.dateRange !== 'all') {
+    const now = new Date()
+    let startDate: Date
+
+    switch (searchParams.dateRange) {
+      case 'today':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        break
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+        break
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+        break
+      default:
+        startDate = new Date(0)
+    }
+
+    filteredResources = filteredResources.filter(resource =>
+      new Date(resource.createdAt) >= startDate
+    )
+  }
+
+  if (searchParams.uploader && searchParams.uploader !== 'all') {
+    filteredResources = filteredResources.filter(resource => {
+      if (searchParams.uploader === 'admin') {
+        return resource.admin.role === 'ADMIN'
+      } else if (searchParams.uploader === 'super_admin') {
+        return resource.admin.role === 'SUPER_ADMIN'
+      }
+      return true
+    })
   }
 
   return (
@@ -109,7 +146,7 @@ export default async function ResourcesPage({ searchParams }: PageProps) {
         {session?.user && (session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN') && (
           <div className="mb-8">
             <Link href="/dashboard/resources/new">
-              <Button className="bg-brand-blue hover:bg-primary-900">
+              <Button className="bg-brand-blue hover:bg-primary-900 text-white">
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Resource
               </Button>
