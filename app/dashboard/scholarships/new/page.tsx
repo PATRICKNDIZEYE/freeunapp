@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import { 
   GraduationCap, 
   Save, 
@@ -142,12 +143,11 @@ export default function NewScholarshipPage() {
 
                 <div>
                   <Label htmlFor="detailedDescription">Detailed Description</Label>
-                  <Textarea
-                    id="detailedDescription"
+                  <RichTextEditor
                     value={formData.detailedDescription}
-                    onChange={(e) => setFormData({ ...formData, detailedDescription: e.target.value })}
-                    placeholder="Comprehensive description with all details"
-                    rows={5}
+                    onChange={(value) => setFormData({ ...formData, detailedDescription: value })}
+                    placeholder="Comprehensive description with all details, formatting, and links..."
+                    className="min-h-[300px]"
                   />
                 </div>
               </CardContent>
@@ -293,34 +293,31 @@ export default function NewScholarshipPage() {
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="eligibilityCriteria">Eligibility Criteria</Label>
-                  <Textarea
-                    id="eligibilityCriteria"
+                  <RichTextEditor
                     value={formData.eligibilityCriteria}
-                    onChange={(e) => setFormData({ ...formData, eligibilityCriteria: e.target.value })}
-                    placeholder="Who is eligible to apply?"
-                    rows={3}
+                    onChange={(value) => setFormData({ ...formData, eligibilityCriteria: value })}
+                    placeholder="Who is eligible to apply? Use formatting to highlight important requirements..."
+                    className="min-h-[200px]"
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="applicationProcess">Application Process</Label>
-                  <Textarea
-                    id="applicationProcess"
+                  <RichTextEditor
                     value={formData.applicationProcess}
-                    onChange={(e) => setFormData({ ...formData, applicationProcess: e.target.value })}
-                    placeholder="Step-by-step application process"
-                    rows={3}
+                    onChange={(value) => setFormData({ ...formData, applicationProcess: value })}
+                    placeholder="Step-by-step application process. Use numbered lists for clear instructions..."
+                    className="min-h-[200px]"
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="qualificationBasis">Qualification Basis</Label>
-                  <Textarea
-                    id="qualificationBasis"
+                  <RichTextEditor
                     value={formData.qualificationBasis}
-                    onChange={(e) => setFormData({ ...formData, qualificationBasis: e.target.value })}
-                    placeholder="How are candidates evaluated?"
-                    rows={3}
+                    onChange={(value) => setFormData({ ...formData, qualificationBasis: value })}
+                    placeholder="How are candidates evaluated? Use formatting to highlight key criteria..."
+                    className="min-h-[200px]"
                   />
                 </div>
               </CardContent>
