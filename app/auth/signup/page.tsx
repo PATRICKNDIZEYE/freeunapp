@@ -74,7 +74,8 @@ export default function SignUpPage() {
         })
 
         if (result?.ok) {
-          router.push('/dashboard')
+          // Always redirect to dashboard for new users, not to application page
+          router.push('/dashboard/student')
         } else {
           router.push('/auth/signin')
         }
@@ -90,7 +91,7 @@ export default function SignUpPage() {
   }
 
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/dashboard' })
+    signIn('google', { callbackUrl: '/dashboard/student' })
   }
 
   return (
