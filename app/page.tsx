@@ -13,7 +13,11 @@ export default async function HomePage() {
   const [scholarships, stats] = await Promise.all([
     prisma.scholarship.findMany({
       where: { 
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        approvalStatus: 'APPROVED',
+        deadline: {
+          gt: new Date() // Only show scholarships with future deadlines
+        }
       },
       include: {
         admin: {
@@ -34,10 +38,25 @@ export default async function HomePage() {
       }
     }),
     prisma.$transaction([
-      prisma.scholarship.count({ where: { status: 'ACTIVE' } }),
+      prisma.scholarship.count({ 
+        where: { 
+          status: 'ACTIVE',
+          approvalStatus: 'APPROVED',
+          deadline: {
+            gt: new Date() // Only count active (non-expired) scholarships
+          }
+        } 
+      }),
       prisma.user.count({ where: { role: 'STUDENT' } }),
       prisma.application.count(),
       prisma.scholarship.aggregate({
+        where: {
+          status: 'ACTIVE',
+          approvalStatus: 'APPROVED',
+          deadline: {
+            gt: new Date() // Only sum awards for active scholarships
+          }
+        },
         _sum: {
           awardsAvailable: true
         }

@@ -18,7 +18,10 @@ export async function GET(req: Request) {
     // Build where clause
     const where: any = { 
       status: 'ACTIVE',
-      approvalStatus: 'APPROVED'
+      approvalStatus: 'APPROVED',
+      deadline: {
+        gt: new Date() // Only show scholarships with future deadlines
+      }
     }
 
     if (search) {

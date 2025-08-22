@@ -37,6 +37,11 @@ export default async function ScholarshipPage({ params }: ScholarshipPageProps) 
     notFound()
   }
 
+  // Check if scholarship is expired and redirect if so
+  if (new Date(scholarship.deadline) <= new Date()) {
+    notFound() // This will show a 404 page for expired scholarships
+  }
+
   // Increment view count
   await prisma.scholarship.update({
     where: { id: params.id },

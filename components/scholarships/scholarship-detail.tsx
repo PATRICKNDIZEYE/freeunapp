@@ -280,8 +280,47 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
     return new Date(deadline) < new Date()
   }
 
+  const isDeadlineNear = (deadline: Date) => {
+    const now = new Date()
+    const deadlineDate = new Date(deadline)
+    const diffTime = deadlineDate.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays <= 7 && diffDays > 0
+  }
+
+  const getDaysRemaining = (deadline: Date) => {
+    const now = new Date()
+    const deadlineDate = new Date(deadline)
+    const diffTime = deadlineDate.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays < 0) return 'Expired'
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return '1 day left'
+    return `${diffDays} days left`
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Deadline Warning Banner */}
+      {isDeadlineNear(scholarship.deadline) && (
+        <div className="lg:col-span-2">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-yellow-600" />
+              <div>
+                <h3 className="text-sm font-medium text-yellow-800">
+                  Deadline Approaching!
+                </h3>
+                <p className="text-sm text-yellow-700 mt-1">
+                  This scholarship closes in {getDaysRemaining(scholarship.deadline)}. Apply now before it's too late!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="lg:col-span-2 space-y-6">
         {/* Header */}

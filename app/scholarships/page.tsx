@@ -55,8 +55,11 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
 
   const [totalScholarships, totalStudents, totalApplications, awardsSum] = stats
 
-  // Apply filters
-  let filteredScholarships = scholarships
+  // Filter out expired scholarships first (hide from public view)
+  const now = new Date()
+  let filteredScholarships = scholarships.filter(scholarship => 
+    new Date(scholarship.deadline) > now
+  )
 
   if (searchParams.search) {
     const searchTerm = searchParams.search.toLowerCase()
@@ -95,15 +98,6 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
     )
   }
 
-  // Separate active and expired scholarships
-  const now = new Date()
-  const activeScholarships = filteredScholarships.filter(scholarship => 
-    new Date(scholarship.deadline) > now
-  )
-  const expiredScholarships = filteredScholarships.filter(scholarship => 
-    new Date(scholarship.deadline) <= now
-  )
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -141,16 +135,16 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
           </Card>
         </div>
 
-        {/* Filters - Sticky */}
-        <div className="sticky top-0 z-10 bg-gray-50 py-4 mb-8 border-b border-gray-200">
+        {/* Filters */}
+        <div className="bg-gray-50 py-6 mb-8 border border-gray-200 rounded-lg shadow-sm">
           <ScholarshipsFilter />
         </div>
 
-        {/* Active Scholarships */}
+        {/* Scholarships List */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-900">
-              Active Scholarships ({activeScholarships.length})
+              Available Scholarships ({filteredScholarships.length})
             </h2>
             {Object.keys(searchParams).length > 0 && (
               <div className="text-sm text-gray-500">
@@ -165,27 +159,9 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
               <span className="ml-3 text-gray-600">Loading scholarships...</span>
             </div>
           }>
-            <ScholarshipsList scholarships={activeScholarships} />
+            <ScholarshipsList scholarships={filteredScholarships} />
           </Suspense>
         </div>
-
-        {/* Expired Scholarships */}
-        {expiredScholarships.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-500">
-                Expired Scholarships ({expiredScholarships.length})
-              </h2>
-              <div className="text-sm text-gray-400">
-                Past deadlines
-              </div>
-            </div>
-
-            <div className="opacity-60">
-              <ScholarshipsList scholarships={expiredScholarships} />
-            </div>
-          </div>
-        )}
       </div>
 
       <Footer />
