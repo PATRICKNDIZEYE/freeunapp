@@ -90,21 +90,22 @@ export default function NewScholarshipPage() {
         approved: true
       }} />
       
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Link href="/dashboard/scholarships">
                   <Button variant="ghost" size="sm">
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Scholarships
+                    <span className="hidden sm:inline">Back to Scholarships</span>
+                    <span className="sm:hidden">Back</span>
                   </Button>
                 </Link>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">Create New Scholarship</h1>
-              <p className="text-gray-600 mt-2">Add a new scholarship opportunity for students</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Create New Scholarship</h1>
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">Add a new scholarship opportunity for students</p>
             </div>
           </div>
 

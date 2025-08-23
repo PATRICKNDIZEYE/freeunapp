@@ -31,7 +31,7 @@ export function Navigation() {
                 alt="FreeUnApp Logo" 
                 width={100} 
                 height={100}
-                className="h-32 w-auto"
+                className="h-8 w-auto sm:h-12 md:h-16 lg:h-20"
               />
             </div>
           </Link>

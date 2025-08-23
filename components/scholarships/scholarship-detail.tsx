@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { RichTextDisplay } from '@/components/ui/rich-text-display'
 import { 
   Calendar, 
   DollarSign, 
@@ -328,7 +329,9 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
                 {scholarship.description}
               </p>
               {scholarship.detailedDescription && (
-                <div className="mt-4" dangerouslySetInnerHTML={{ __html: scholarship.detailedDescription }} />
+                <div className="mt-4">
+                  <RichTextDisplay content={scholarship.detailedDescription} />
+                </div>
               )}
             </div>
           </CardContent>
@@ -342,7 +345,7 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: scholarship.eligibilityCriteria }} />
+                <RichTextDisplay content={scholarship.eligibilityCriteria} />
               </div>
             </CardContent>
           </Card>
@@ -356,7 +359,7 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: scholarship.applicationProcess }} />
+                <RichTextDisplay content={scholarship.applicationProcess} />
               </div>
             </CardContent>
           </Card>
@@ -370,7 +373,7 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: scholarship.qualificationBasis }} />
+                <RichTextDisplay content={scholarship.qualificationBasis} />
               </div>
             </CardContent>
           </Card>

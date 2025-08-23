@@ -12,6 +12,18 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu'
 import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { useToast } from '@/hooks/use-toast'
+import { 
   Search, 
   Filter, 
   MoreHorizontal, 
@@ -23,6 +35,7 @@ import {
   DollarSign
 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Scholarship {
   id: string
@@ -54,6 +67,9 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [degreeLevelFilter, setDegreeLevelFilter] = useState('all')
+  const [deletingScholarshipId, setDeletingScholarshipId] = useState<string | null>(null)
+  const { toast } = useToast()
+  const router = useRouter()
 
   const filteredScholarships = scholarships.filter(scholarship => {
     const matchesSearch = scholarship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,6 +97,42 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
       case 'MEDICINE': return 'bg-red-100 text-red-800'
       case 'BUSINESS': return 'bg-green-100 text-green-800'
       default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const handleDeleteScholarship = async (scholarshipId: string) => {
+    setDeletingScholarshipId(scholarshipId)
+    
+    try {
+      const response = await fetch(`/api/scholarships/${scholarshipId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        toast({
+          title: "Scholarship deleted",
+          description: `"${data.deletedScholarship.title}" has been deleted successfully.`,
+        })
+        // Refresh the page to update the list
+        router.refresh()
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.error || "Failed to delete scholarship",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error deleting scholarship:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete scholarship",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingScholarshipId(null)
     }
   }
 
@@ -246,10 +298,39 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                         Edit
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem 
+                          className="text-red-600"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Scholarship</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete "{scholarship.title}"? This action cannot be undone.
+                            <br /><br />
+                            <strong>This will also delete:</strong>
+                            <br />• {scholarship._count.applications} application(s)
+                            <br />• {scholarship._count.savedBy} saved bookmark(s)
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteScholarship(scholarship.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                            disabled={deletingScholarshipId === scholarship.id}
+                          >
+                            {deletingScholarshipId === scholarship.id ? 'Deleting...' : 'Delete'}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -327,6 +408,40 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                       Edit
                     </Link>
                   </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Scholarship</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete "{scholarship.title}"? This action cannot be undone.
+                          <br /><br />
+                          <strong>This will also delete:</strong>
+                          <br />• {scholarship._count.applications} application(s)
+                          <br />• {scholarship._count.savedBy} saved bookmark(s)
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteScholarship(scholarship.id)}
+                          className="bg-red-600 hover:bg-red-700"
+                          disabled={deletingScholarshipId === scholarship.id}
+                        >
+                          {deletingScholarshipId === scholarship.id ? 'Deleting...' : 'Delete'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </div>

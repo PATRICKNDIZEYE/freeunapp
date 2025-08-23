@@ -7,6 +7,8 @@ import { notFound } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { ScholarshipApplicationsList } from '@/components/dashboard/scholarship-applications-list'
+import { ScholarshipSidebarActions } from '@/components/dashboard/scholarship-sidebar-actions'
 import { 
   GraduationCap, 
   Calendar, 
@@ -52,7 +54,6 @@ export default async function ScholarshipDetailPage({ params }: ScholarshipDetai
         }
       },
       applications: {
-        take: 5,
         orderBy: {
           appliedAt: 'desc'
         }
@@ -204,34 +205,13 @@ export default async function ScholarshipDetailPage({ params }: ScholarshipDetai
                 </CardContent>
               </Card>
 
-              {/* Recent Applications */}
-              {scholarship.applications.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      Recent Applications ({scholarship._count.applications})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {scholarship.applications.map((application) => (
-                        <div key={application.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div>
-                            <p className="font-medium">{application.name || application.email}</p>
-                            <p className="text-sm text-gray-500">
-                              Applied: {new Date(application.appliedAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <Badge className="bg-blue-100 text-blue-800">
-                            {application.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Applications List */}
+              <div id="applications-section">
+                <ScholarshipApplicationsList 
+                  applications={scholarship.applications}
+                  scholarshipTitle={scholarship.title}
+                />
+              </div>
             </div>
 
             {/* Sidebar */}
@@ -318,19 +298,8 @@ export default async function ScholarshipDetailPage({ params }: ScholarshipDetai
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Mail className="h-4 w-4 mr-2" />
-                    Contact Applicants
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <FileText className="h-4 w-4 mr-2" />
-                    View All Applications
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Preview Public Page
-                  </Button>
+                <CardContent>
+                  <ScholarshipSidebarActions />
                 </CardContent>
               </Card>
             </div>

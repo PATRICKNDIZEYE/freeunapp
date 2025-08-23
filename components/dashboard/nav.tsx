@@ -48,9 +48,9 @@ export function DashboardNav({ user, notifications }: DashboardNavProps) {
                 alt="FreeUnApp Logo" 
                 width={100} 
                 height={100}
-                className="h-20 w-auto"
+                className="h-8 w-auto sm:h-12 md:h-16"
               />
-              <span className="text-xl font-bold text-gray-900">Admin Panel</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900 hidden sm:block">Admin Panel</span>
             </Link>
           </div>
 
@@ -62,9 +62,7 @@ export function DashboardNav({ user, notifications }: DashboardNavProps) {
             <Link href="/dashboard/scholarships" className="text-gray-700 hover:text-brand-blue transition-colors">
               Scholarships
             </Link>
-            <Link href="/dashboard/applications" className="text-gray-700 hover:text-brand-blue transition-colors">
-              Applications
-            </Link>
+            
             <Link href="/dashboard/users" className="text-gray-700 hover:text-brand-blue transition-colors">
               Users
             </Link>

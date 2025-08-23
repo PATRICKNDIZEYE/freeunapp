@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { RichTextDisplay } from '@/components/ui/rich-text-display'
 import { 
   Calendar, 
   DollarSign, 
@@ -90,12 +91,9 @@ export function ScholarshipDetails({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div 
-            className="prose prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ 
-              __html: scholarship.detailedDescription || scholarship.description 
-            }}
-          />
+          <div className="prose prose-sm max-w-none">
+            <RichTextDisplay content={scholarship.detailedDescription || scholarship.description} />
+          </div>
         </CardContent>
       </Card>
 
@@ -147,10 +145,9 @@ export function ScholarshipDetails({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div 
-              className="prose prose-sm max-w-none bg-gray-50 p-4 rounded-lg"
-              dangerouslySetInnerHTML={{ __html: scholarship.eligibilityCriteria }}
-            />
+            <div className="prose prose-sm max-w-none bg-gray-50 p-4 rounded-lg">
+              <RichTextDisplay content={scholarship.eligibilityCriteria} />
+            </div>
           </CardContent>
         </Card>
       )}
@@ -165,10 +162,9 @@ export function ScholarshipDetails({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div 
-              className="prose prose-sm max-w-none bg-blue-50 p-4 rounded-lg"
-              dangerouslySetInnerHTML={{ __html: scholarship.applicationProcess }}
-            />
+            <div className="prose prose-sm max-w-none bg-blue-50 p-4 rounded-lg">
+              <RichTextDisplay content={scholarship.applicationProcess} />
+            </div>
           </CardContent>
         </Card>
       )}
@@ -183,10 +179,9 @@ export function ScholarshipDetails({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div 
-              className="prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: scholarship.contactInfo }}
-            />
+            <div className="prose prose-sm max-w-none">
+              <RichTextDisplay content={scholarship.contactInfo} />
+            </div>
           </CardContent>
         </Card>
       )}

@@ -120,19 +120,21 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
         if (!formData.currentInstitution.trim()) newErrors.currentInstitution = 'Current institution is required'
         if (!formData.fieldOfStudy.trim()) newErrors.fieldOfStudy = 'Field of study is required'
         if (!formData.currentYear.trim()) newErrors.currentYear = 'Current year is required'
-        if (!formData.gpa.trim()) newErrors.gpa = 'GPA is required'
-        if (!formData.expectedGraduation) newErrors.expectedGraduation = 'Expected graduation date is required'
+        // GPA and expected graduation are optional
         break
       
       case 3:
         if (!formData.intendedUniversity.trim()) newErrors.intendedUniversity = 'Intended university is required'
         if (!formData.intendedProgram.trim()) newErrors.intendedProgram = 'Intended program is required'
         if (!formData.intendedCountry.trim()) newErrors.intendedCountry = 'Intended country is required'
-        if (!formData.financialNeed.trim()) newErrors.financialNeed = 'Financial need description is required'
+        // Financial need is optional
         break
       
       case 4:
-        if (!formData.achievements.trim()) newErrors.achievements = 'Achievements are required'
+        // Step 4 fields are optional - no validation required
+        break
+      
+      case 5:
         if (!formData.motivation.trim()) newErrors.motivation = 'Motivation statement is required'
         break
     }
@@ -205,7 +207,7 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold text-lg text-gray-900">{scholarship.title}</h3>
               <p className="text-gray-600 text-sm mt-1">{scholarship.description}</p>
@@ -380,7 +382,7 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
                 </div>
                 
                 <div>
-                  <Label htmlFor="gpa">GPA *</Label>
+                  <Label htmlFor="gpa">GPA (Optional)</Label>
                   <Input
                     id="gpa"
                     type="number"
@@ -396,7 +398,7 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
                 </div>
                 
                 <div>
-                  <Label htmlFor="expectedGraduation">Expected Graduation *</Label>
+                  <Label htmlFor="expectedGraduation">Expected Graduation (Optional)</Label>
                   <Input
                     id="expectedGraduation"
                     type="date"
@@ -452,7 +454,7 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
                 </div>
                 
                 <div>
-                  <Label htmlFor="financialNeed">Financial Need Description *</Label>
+                  <Label htmlFor="financialNeed">Financial Need Description (Optional)</Label>
                   <Textarea
                     id="financialNeed"
                     value={formData.financialNeed}
@@ -470,7 +472,7 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
           {currentStep === 4 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="achievements">Academic & Personal Achievements *</Label>
+                <Label htmlFor="achievements">Academic & Personal Achievements (Optional)</Label>
                 <Textarea
                   id="achievements"
                   value={formData.achievements}

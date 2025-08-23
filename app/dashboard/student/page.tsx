@@ -118,7 +118,7 @@ export default async function StudentDashboardPage() {
         applicationCount={allApplications.length}
         savedCount={savedScholarships.length}
       />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 sm:py-8">
         <StudentDashboard 
           user={user}
           applications={applications}

@@ -1,25 +1,25 @@
+import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
 
 export async function GET(
-  req: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const scholarship = await prisma.scholarship.findUnique({
       where: { id: params.id },
       include: {
         admin: {
           select: {
-            name: true,
-            email: true
+            name: true
+          }
+        },
+        _count: {
+          select: {
+            savedBy: true,
+            applications: true
           }
         }
       }
@@ -37,65 +37,47 @@ export async function GET(
 }
 
 export async function PUT(
-  req: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await req.json()
-    const {
-      title,
-      description,
-      detailedDescription,
-      amount,
-      amountType,
-      category,
-      degreeLevel,
-      deadline,
-      eligibilityCriteria,
-      applicationProcess,
-      qualificationBasis,
-      awardsAvailable,
-      contactInfo,
-      referenceUrl,
-      status
-    } = body
-
-    // Find the admin user by email since session.user.id might be undefined
-    const adminUser = await prisma.user.findFirst({
-      where: { email: session.user.email }
-    })
-
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Admin user not found' }, { status: 404 })
+    // Check if user is admin or super admin
+    if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const scholarship = await prisma.scholarship.update({
+    const body = await request.json()
+    
+    const updatedScholarship = await prisma.scholarship.update({
       where: { id: params.id },
       data: {
-        title,
-        description,
-        detailedDescription,
-        amount,
-        amountType,
-        category,
-        degreeLevel,
-        deadline: new Date(deadline),
-        eligibilityCriteria,
-        applicationProcess,
-        qualificationBasis,
-        awardsAvailable: awardsAvailable ? parseInt(awardsAvailable) : null,
-        contactInfo,
-        referenceUrl,
-        status
+        title: body.title,
+        description: body.description,
+        detailedDescription: body.detailedDescription,
+        logoUrl: body.logoUrl,
+        referenceUrl: body.referenceUrl,
+        eligibilityCriteria: body.eligibilityCriteria,
+        applicationProcess: body.applicationProcess,
+        qualificationBasis: body.qualificationBasis,
+        awardsAvailable: body.awardsAvailable ? parseInt(body.awardsAvailable) : null,
+        amount: body.amount,
+        amountType: body.amountType,
+        category: body.category,
+        degreeLevel: body.degreeLevel,
+        deadline: new Date(body.deadline),
+        contactInfo: body.contactInfo,
+        status: body.status,
+        approvalStatus: body.approvalStatus
       }
     })
 
-    return NextResponse.json(scholarship)
+    return NextResponse.json(updatedScholarship)
   } catch (error) {
     console.error('Error updating scholarship:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -103,20 +85,63 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await prisma.scholarship.delete({
-      where: { id: params.id }
+    // Check if user is admin or super admin
+    if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Check if scholarship exists
+    const scholarship = await prisma.scholarship.findUnique({
+      where: { id: params.id },
+      include: {
+        _count: {
+          select: {
+            applications: true,
+            savedBy: true
+          }
+        }
+      }
     })
 
-    return NextResponse.json({ message: 'Scholarship deleted successfully' })
+    if (!scholarship) {
+      return NextResponse.json({ error: 'Scholarship not found' }, { status: 404 })
+    }
+
+    // Delete related records first (due to foreign key constraints)
+    await prisma.$transaction([
+      // Delete applications
+      prisma.application.deleteMany({
+        where: { scholarshipId: params.id }
+      }),
+      // Delete saved scholarships
+      prisma.savedScholarship.deleteMany({
+        where: { scholarshipId: params.id }
+      }),
+      // Delete the scholarship
+      prisma.scholarship.delete({
+        where: { id: params.id }
+      })
+    ])
+
+    return NextResponse.json({ 
+      message: 'Scholarship deleted successfully',
+      deletedScholarship: {
+        id: scholarship.id,
+        title: scholarship.title,
+        applicationsCount: scholarship._count.applications,
+        savedCount: scholarship._count.savedBy
+      }
+    })
   } catch (error) {
     console.error('Error deleting scholarship:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

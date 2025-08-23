@@ -86,7 +86,7 @@ export default async function ProfilePage() {
         <DashboardNav user={user} notifications={notifications} />
       )}
       
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="max-w-4xl mx-auto">
           <ProfileForm 
             user={user}

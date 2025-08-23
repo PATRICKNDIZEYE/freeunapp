@@ -62,11 +62,11 @@ export function StudentNavigation({
           {/* Logo */}
           <Link href="/dashboard/student" className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-white/10 backdrop-blur-sm">
-              <GraduationCap className="h-8 w-8 text-white" />
+              <GraduationCap className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
             <div className="text-white">
-              <h1 className="font-bold text-lg">FreeUnApp</h1>
-              <p className="text-xs text-blue-100">Student Portal</p>
+              <h1 className="font-bold text-base sm:text-lg">FreeUnApp</h1>
+              <p className="text-xs text-blue-100 hidden sm:block">Student Portal</p>
             </div>
           </Link>
 

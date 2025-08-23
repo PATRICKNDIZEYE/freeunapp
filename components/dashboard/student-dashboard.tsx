@@ -165,11 +165,11 @@ export function StudentDashboard({
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
           Welcome back, {user.name || 'Student'}! 👋
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-sm sm:text-base">
           Here's your scholarship application overview and personalized recommendations.
         </p>
       </div>
@@ -200,7 +200,7 @@ export function StudentDashboard({
       )}
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
@@ -273,9 +273,9 @@ export function StudentDashboard({
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
         {/* Left Column */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-6">
           {/* Quick Actions */}
           <Card>
             <CardHeader>
@@ -285,7 +285,7 @@ export function StudentDashboard({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
                 <Button asChild className="h-auto p-4 flex-col gap-2 bg-brand-blue hover:bg-blue-700 text-white">
                   <Link href="/scholarships">
                     <Search className="h-5 w-5" />
