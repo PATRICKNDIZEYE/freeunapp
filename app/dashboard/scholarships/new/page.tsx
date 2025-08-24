@@ -19,6 +19,7 @@ import {
   Calendar
 } from 'lucide-react'
 import Link from 'next/link'
+import { InlineLoader } from '@/components/ui/loader'
 
 export default function NewScholarshipPage() {
   const router = useRouter()
@@ -394,8 +395,17 @@ export default function NewScholarshipPage() {
                     </Button>
                   </Link>
                   <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700">
-                    <Save className="h-4 w-4 mr-2" />
-                    {loading ? 'Creating...' : 'Create Scholarship'}
+                    {loading ? (
+                      <>
+                        <InlineLoader size="sm" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Create Scholarship
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>

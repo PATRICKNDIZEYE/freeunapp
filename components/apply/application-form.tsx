@@ -28,6 +28,7 @@ import {
   Send
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { InlineLoader } from '@/components/ui/loader'
 
 interface Scholarship {
   id: string
@@ -622,7 +623,7 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                  <InlineLoader size="sm" />
                   Submitting...
                 </>
               ) : (

@@ -36,6 +36,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { InlineLoader } from '@/components/ui/loader'
 
 interface Scholarship {
   id: string
@@ -326,7 +327,14 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                             className="bg-red-600 hover:bg-red-700"
                             disabled={deletingScholarshipId === scholarship.id}
                           >
-                            {deletingScholarshipId === scholarship.id ? 'Deleting...' : 'Delete'}
+                            {deletingScholarshipId === scholarship.id ? (
+                              <>
+                                <InlineLoader size="sm" />
+                                Deleting...
+                              </>
+                            ) : (
+                              'Delete'
+                            )}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
