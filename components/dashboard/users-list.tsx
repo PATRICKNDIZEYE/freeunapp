@@ -22,7 +22,8 @@ import {
   Shield,
   CheckCircle,
   XCircle,
-  Calendar
+  Calendar,
+  Lock
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -51,6 +52,8 @@ export function UsersList({ users }: UsersListProps) {
   const [profileFilter, setProfileFilter] = useState('all')
   const [approvingUsers, setApprovingUsers] = useState<Set<string>>(new Set())
   const [revokingUsers, setRevokingUsers] = useState<Set<string>>(new Set())
+  const [deletingUsers, setDeletingUsers] = useState<Set<string>>(new Set())
+  const [blockingUsers, setBlockingUsers] = useState<Set<string>>(new Set())
 
   const handleApproveUser = async (userId: string) => {
     if (!confirm('Are you sure you want to approve this admin user?')) {
@@ -111,6 +114,70 @@ export function UsersList({ users }: UsersListProps) {
       alert('Failed to revoke user')
     } finally {
       setRevokingUsers(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(userId)
+        return newSet
+      })
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone and will remove all their data.')) {
+      return
+    }
+
+    setDeletingUsers(prev => new Set(prev).add(userId))
+
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        alert('User deleted successfully!')
+        window.location.reload()
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to delete user')
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      alert('Failed to delete user')
+    } finally {
+      setDeletingUsers(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(userId)
+        return newSet
+      })
+    }
+  }
+
+  const handleBlockUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to block this user? They will not be able to access the platform.')) {
+      return
+    }
+
+    setBlockingUsers(prev => new Set(prev).add(userId))
+
+    try {
+      const response = await fetch(`/api/users/${userId}/block`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        alert('User blocked successfully!')
+        window.location.reload()
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to block user')
+      }
+    } catch (error) {
+      console.error('Error blocking user:', error)
+      alert('Failed to block user')
+    } finally {
+      setBlockingUsers(prev => {
         const newSet = new Set(prev)
         newSet.delete(userId)
         return newSet
@@ -328,10 +395,44 @@ export function UsersList({ users }: UsersListProps) {
                         )}
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete User
-                    </DropdownMenuItem>
+                    {user.role !== 'SUPER_ADMIN' && (
+                      <DropdownMenuItem 
+                        onClick={() => handleBlockUser(user.id)}
+                        className="text-orange-600"
+                        disabled={blockingUsers.has(user.id)}
+                      >
+                        {blockingUsers.has(user.id) ? (
+                          <>
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-orange-600 border-t-transparent mr-2" />
+                            Blocking...
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="h-4 w-4 mr-2" />
+                            Block User
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                    )}
+                    {user.role !== 'SUPER_ADMIN' && (
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="text-red-600"
+                        disabled={deletingUsers.has(user.id)}
+                      >
+                        {deletingUsers.has(user.id) ? (
+                          <>
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent mr-2" />
+                            Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete User
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
