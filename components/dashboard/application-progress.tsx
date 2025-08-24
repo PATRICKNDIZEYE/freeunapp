@@ -26,8 +26,8 @@ interface Application {
     id: string
     title: string
     amount: string
-    category: string
-    degreeLevel: string
+    categories: string[]
+    degreeLevels: string[]
     deadline: Date
   }
 }
@@ -232,7 +232,7 @@ export function ApplicationProgress({ applications }: ApplicationProgressProps) 
                         </span>
                         <span className="flex items-center gap-1">
                           <GraduationCap className="h-4 w-4" />
-                          {application.scholarship.degreeLevel}
+                          {application.scholarship.degreeLevels.join(', ')}
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />

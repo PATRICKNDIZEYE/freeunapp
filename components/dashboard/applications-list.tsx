@@ -51,8 +51,8 @@ interface Application {
     title: string
     amount: string
     amountType: string
-    category: string
-    degreeLevel: string
+    categories: string[]
+    degreeLevels: string[]
     deadline: Date
     status: string
   }
@@ -220,7 +220,7 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
                     </div>
                     <div className="flex items-center gap-2">
                       <GraduationCap className="h-4 w-4 text-brand-blue" />
-                      <span>{application.scholarship.degreeLevel}</span>
+                      <span>{application.scholarship.degreeLevels.join(', ')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-brand-blue" />
@@ -236,7 +236,7 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
                   
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">
-                      {application.scholarship.category.replace('_', ' ')}
+                      {application.scholarship.categories.map(c => c.replace('_', ' ')).join(', ')}
                     </Badge>
                     {application.fieldOfStudy && (
                       <Badge variant="outline">
@@ -295,11 +295,11 @@ export function ApplicationsList({ applications }: ApplicationsListProps) {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-600">Category</p>
-                        <p className="text-gray-900">{selectedApplication.scholarship.category.replace('_', ' ')}</p>
+                        <p className="text-gray-900">{selectedApplication.scholarship.categories.map(c => c.replace('_', ' ')).join(', ')}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-600">Degree Level</p>
-                        <p className="text-gray-900">{selectedApplication.scholarship.degreeLevel}</p>
+                        <p className="text-gray-900">{selectedApplication.scholarship.degreeLevels.join(', ')}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-600">Deadline</p>

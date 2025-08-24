@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,39 +8,32 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(cuid())
-  email             String   @unique
-  name              String?
-  password          String?
-  emailVerified     DateTime?
-  role              UserRole @default(STUDENT)
-  approved          Boolean  @default(false)
-  profileComplete   Boolean  @default(false)
-  preferences       Json?
-  // Field of study for notifications
-  fieldOfStudy      String?
-  degreeLevel       String?
-  notificationPreferences Json? // Store notification settings
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Student relations
-  savedScholarships SavedScholarship[]
-  notifications     Notification[]
-
-  // Admin relations
-  scholarships      Scholarship[]
-  resources         Resource[]
-
-  // NextAuth relations
-  accounts          Account[]
-  sessions          Session[]
+  id                      String             @id @default(cuid())
+  email                   String             @unique
+  name                    String?
+  password                String?
+  role                    UserRole           @default(STUDENT)
+  approved                Boolean            @default(false)
+  profileComplete         Boolean            @default(false)
+  preferences             Json?
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+  emailVerified           DateTime?
+  degreeLevel             String?
+  fieldOfStudy            String?
+  notificationPreferences Json?
+  accounts                Account[]
+  notifications           Notification[]
+  resources               Resource[]
+  savedScholarships       SavedScholarship[]
+  scholarships            Scholarship[]
+  sessions                Session[]
 
   @@map("users")
 }
 
 model Scholarship {
-  id                  String            @id @default(cuid())
+  id                  String             @id @default(cuid())
   title               String
   description         String
   detailedDescription String?
@@ -54,80 +44,67 @@ model Scholarship {
   qualificationBasis  String?
   awardsAvailable     Int?
   amount              String
-  amountType          AmountType        @default(PARTIAL)
-  category            Category
-  degreeLevel         DegreeLevel
+  amountType          AmountType         @default(PARTIAL)
   deadline            DateTime
   contactInfo         String?
-  status              ScholarshipStatus @default(ACTIVE)
-  approvalStatus      ApprovalStatus    @default(PENDING)
-  views               Int               @default(0)
+  status              ScholarshipStatus  @default(ACTIVE)
+  approvalStatus      ApprovalStatus     @default(PENDING)
+  views               Int                @default(0)
   adminId             String
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-
-  admin             User               @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  savedBy           SavedScholarship[]
-  applications      Application[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  categories          String[]
+  degreeLevels        String[]
+  applications        Application[]
+  savedBy             SavedScholarship[]
+  admin               User               @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   @@map("scholarships")
 }
 
 model SavedScholarship {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   userId        String
   scholarshipId String
-  savedAt       DateTime @default(now())
-
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  savedAt       DateTime    @default(now())
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, scholarshipId])
   @@map("saved_scholarships")
 }
 
 model Application {
-  id            String            @id @default(cuid())
-  name          String
-  email         String
-  phone         String?
-  message       String?
-  scholarshipId String
-  appliedAt     DateTime          @default(now())
-  status        ApplicationStatus @default(APPLIED)
-  
-  // Personal Information
-  dateOfBirth        DateTime?
-  nationality        String?
-  
-  // Academic Information
-  currentInstitution String?
-  fieldOfStudy       String?
-  currentYear        String?
-  gpa                Float?
-  expectedGraduation DateTime?
-  
-  // Intended Program
-  intendedUniversity String?
-  intendedProgram    String?
-  intendedCountry    String?
-  financialNeed      String?
-  
-  // Achievements and Experience
+  id                 String            @id @default(cuid())
+  scholarshipId      String
+  appliedAt          DateTime          @default(now())
+  status             ApplicationStatus @default(APPLIED)
   achievements       String?
-  extracurricular    String?
-  workExperience     String?
-  researchExperience String?
-  publications       String?
-  awards             String?
-  references         String?
-  
-  // Motivation and Goals
-  motivation         String?
-  futureGoals        String?
   additionalInfo     String?
-
-  scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  awards             String?
+  currentInstitution String?
+  currentYear        String?
+  dateOfBirth        DateTime?
+  email              String
+  expectedGraduation DateTime?
+  extracurricular    String?
+  fieldOfStudy       String?
+  financialNeed      String?
+  futureGoals        String?
+  gpa                Float?
+  intendedCountry    String?
+  intendedProgram    String?
+  intendedUniversity String?
+  message            String?
+  motivation         String?
+  name               String
+  nationality        String?
+  phone              String?
+  publications       String?
+  references         String?
+  researchExperience String?
+  workExperience     String?
+  scholarship        Scholarship       @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
 
   @@map("applications")
 }
@@ -139,8 +116,7 @@ model Notification {
   type      NotificationType
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
@@ -163,28 +139,25 @@ model Resource {
   description String?
   adminId     String
   createdAt   DateTime     @default(now())
-
-  admin User @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  admin       User         @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   @@map("resources")
 }
 
-// NextAuth required models
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -195,8 +168,7 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
@@ -277,4 +249,34 @@ enum ResourceType {
   ESSAY_EXAMPLE
   APPLICATION_TIP
   OTHER
+  SCHOLARSHIP_CALENDAR
+  DEADLINE_TRACKER
+  APPLICATION_CHECKLIST
+  CV_RESUME_TEMPLATE
+  PERSONAL_STATEMENT_GUIDE
+  RECOMMENDATION_LETTER_TEMPLATE
+  FINANCIAL_AID_GUIDE
+  STUDY_ABROAD_GUIDE
+  VISA_INFORMATION
+  UNIVERSITY_RANKINGS
+  COURSE_CATALOG
+  ADMISSION_REQUIREMENTS
+  TEST_PREPARATION
+  INTERVIEW_GUIDE
+  PORTFOLIO_GUIDE
+  RESEARCH_PROPOSAL_TEMPLATE
+  GRANT_WRITING_GUIDE
+  FELLOWSHIP_GUIDE
+  INTERNSHIP_GUIDE
+  CAREER_PLANNING
+  NETWORKING_GUIDE
+  MENTORSHIP_PROGRAM
+  WORKSHOP_MATERIALS
+  WEBINAR_RECORDINGS
+  CASE_STUDIES
+  SUCCESS_STORIES
+  FAQ_DOCUMENT
+  POLICY_DOCUMENT
+  PROCEDURE_MANUAL
+  REFERENCE_MATERIAL
 }

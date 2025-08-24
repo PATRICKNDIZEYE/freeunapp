@@ -43,8 +43,8 @@ interface Application {
     id: string
     title: string
     amount: string
-    category: string
-    degreeLevel: string
+    categories: string[]
+    degreeLevels: string[]
     deadline: Date
     status: string
   }
@@ -57,8 +57,8 @@ interface SavedScholarship {
     id: string
     title: string
     amount: string
-    category: string
-    degreeLevel: string
+    categories: string[]
+    degreeLevels: string[]
     deadline: Date
   }
 }
@@ -76,8 +76,8 @@ interface Scholarship {
   title: string
   description: string
   amount: string
-  category: string
-  degreeLevel: string
+  categories: string[]
+  degreeLevels: string[]
   deadline: Date
   views: number
 }
@@ -416,12 +416,26 @@ export function StudentDashboard({
                       </div>
                       
                       <div className="flex items-center gap-2 mb-3">
-                        <Badge variant="outline" className="text-xs">
-                          {scholarship.category.replace('_', ' ')}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {scholarship.degreeLevel}
-                        </Badge>
+                        {scholarship.categories.slice(0, 2).map((category, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {category.replace('_', ' ')}
+                          </Badge>
+                        ))}
+                        {scholarship.categories.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{scholarship.categories.length - 2} more
+                          </Badge>
+                        )}
+                        {scholarship.degreeLevels.slice(0, 2).map((level, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {level}
+                          </Badge>
+                        ))}
+                        {scholarship.degreeLevels.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{scholarship.degreeLevels.length - 2} more
+                          </Badge>
+                        )}
                         {isDeadlineClose(scholarship.deadline) && (
                           <Badge className="bg-orange-100 text-orange-800 text-xs">
                             Deadline Soon

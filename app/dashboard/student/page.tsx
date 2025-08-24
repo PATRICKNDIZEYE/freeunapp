@@ -32,8 +32,8 @@ export default async function StudentDashboardPage() {
             id: true,
             title: true,
             amount: true,
-            category: true,
-            degreeLevel: true,
+            categories: true,
+            degreeLevels: true,
             deadline: true,
             status: true
           }
@@ -52,8 +52,8 @@ export default async function StudentDashboardPage() {
             id: true,
             title: true,
             amount: true,
-            category: true,
-            degreeLevel: true,
+            categories: true,
+            degreeLevels: true,
             deadline: true
           }
         }
@@ -76,7 +76,7 @@ export default async function StudentDashboardPage() {
         deadline: { gt: new Date() },
         ...(user.fieldOfStudy && {
           OR: [
-            { category: user.fieldOfStudy as any },
+            { categories: { has: user.fieldOfStudy } },
             { title: { contains: user.fieldOfStudy, mode: 'insensitive' } },
             { description: { contains: user.fieldOfStudy, mode: 'insensitive' } }
           ]

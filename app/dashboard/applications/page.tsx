@@ -25,8 +25,8 @@ export default async function ApplicationsPage() {
               title: true,
               amount: true,
               amountType: true,
-              category: true,
-              degreeLevel: true,
+              categories: true,
+              degreeLevels: true,
               deadline: true,
               status: true
             }

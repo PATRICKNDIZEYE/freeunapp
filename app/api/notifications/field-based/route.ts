@@ -16,8 +16,8 @@ export async function POST(req: Request) {
       select: {
         id: true,
         title: true,
-        category: true,
-        degreeLevel: true,
+        categories: true,
+        degreeLevels: true,
         amount: true,
         deadline: true
       }
@@ -35,12 +35,13 @@ export async function POST(req: Request) {
         OR: [
           {
             fieldOfStudy: {
-              contains: scholarship.category,
-              mode: 'insensitive'
+              in: scholarship.categories
             }
           },
           {
-            degreeLevel: scholarship.degreeLevel
+            degreeLevel: {
+              in: scholarship.degreeLevels
+            }
           }
         ],
         notificationPreferences: {

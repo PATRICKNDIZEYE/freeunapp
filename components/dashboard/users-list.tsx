@@ -50,6 +50,7 @@ export function UsersList({ users }: UsersListProps) {
   const [statusFilter, setStatusFilter] = useState('all')
   const [profileFilter, setProfileFilter] = useState('all')
   const [approvingUsers, setApprovingUsers] = useState<Set<string>>(new Set())
+  const [revokingUsers, setRevokingUsers] = useState<Set<string>>(new Set())
 
   const handleApproveUser = async (userId: string) => {
     if (!confirm('Are you sure you want to approve this admin user?')) {
@@ -77,6 +78,39 @@ export function UsersList({ users }: UsersListProps) {
       alert('Failed to approve user')
     } finally {
       setApprovingUsers(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(userId)
+        return newSet
+      })
+    }
+  }
+
+  const handleRevokeUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to revoke this admin user? This will prevent them from accessing admin features.')) {
+      return
+    }
+
+    setRevokingUsers(prev => new Set(prev).add(userId))
+
+    try {
+      const response = await fetch(`/api/users/${userId}/revoke`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        alert('User revoked successfully!')
+        // Refresh the page to show updated status
+        window.location.reload()
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to revoke user')
+      }
+    } catch (error) {
+      console.error('Error revoking user:', error)
+      alert('Failed to revoke user')
+    } finally {
+      setRevokingUsers(prev => {
         const newSet = new Set(prev)
         newSet.delete(userId)
         return newSet
@@ -271,6 +305,25 @@ export function UsersList({ users }: UsersListProps) {
                           <>
                             <CheckCircle className="h-4 w-4 mr-2" />
                             Approve Admin
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                    )}
+                    {user.approved && user.role === 'ADMIN' && (
+                      <DropdownMenuItem 
+                        onClick={() => handleRevokeUser(user.id)}
+                        className="text-red-600"
+                        disabled={revokingUsers.has(user.id)}
+                      >
+                        {revokingUsers.has(user.id) ? (
+                          <>
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent mr-2" />
+                            Revoking...
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="h-4 w-4 mr-2" />
+                            Revoke Admin
                           </>
                         )}
                       </DropdownMenuItem>

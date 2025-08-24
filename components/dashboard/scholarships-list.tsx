@@ -43,8 +43,8 @@ interface Scholarship {
   title: string
   description: string
   amount: string
-  category: string
-  degreeLevel: string
+  categories: string[]
+  degreeLevels: string[]
   deadline: Date
   status: string
   approvalStatus: string
@@ -76,8 +76,8 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
     const matchesSearch = scholarship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          scholarship.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || scholarship.status === statusFilter
-    const matchesCategory = categoryFilter === 'all' || scholarship.category === categoryFilter
-    const matchesDegreeLevel = degreeLevelFilter === 'all' || scholarship.degreeLevel === degreeLevelFilter
+    const matchesCategory = categoryFilter === 'all' || scholarship.categories.includes(categoryFilter)
+    const matchesDegreeLevel = degreeLevelFilter === 'all' || scholarship.degreeLevels.includes(degreeLevelFilter)
     return matchesSearch && matchesStatus && matchesCategory && matchesDegreeLevel
   })
 
@@ -273,9 +273,16 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                     <Badge className={getStatusColor(scholarship.status)}>
                       {scholarship.status}
                     </Badge>
-                    <Badge className={getCategoryColor(scholarship.category)}>
-                      {scholarship.category.replace('_', ' ')}
-                    </Badge>
+                    {scholarship.categories.slice(0, 2).map((category, index) => (
+                      <Badge key={index} className={getCategoryColor(category)}>
+                        {category.replace('_', ' ')}
+                      </Badge>
+                    ))}
+                    {scholarship.categories.length > 2 && (
+                      <Badge className="bg-gray-100 text-gray-700">
+                        +{scholarship.categories.length - 2} more
+                      </Badge>
+                    )}
                   </div>
                 </div>
 
@@ -383,7 +390,7 @@ export function ScholarshipsList({ scholarships }: ScholarshipsListProps) {
                     <span>{scholarship.views} views</span>
                   </div>
                 </div>
-                <span className="text-xs">{scholarship.degreeLevel}</span>
+                <span className="text-xs">{scholarship.degreeLevels.join(', ')}</span>
               </div>
             </div>
 

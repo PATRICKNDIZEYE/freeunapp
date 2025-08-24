@@ -31,8 +31,8 @@ interface SavedScholarship {
     description: string
     amount: string
     amountType: string
-    category: string
-    degreeLevel: string
+    categories: string[]
+    degreeLevels: string[]
     deadline: Date
     status: string
     approvalStatus: string
@@ -231,9 +231,16 @@ export function SavedScholarshipsList({ savedScholarships }: SavedScholarshipsLi
                        savedScholarship.scholarship.amountType === 'PARTIAL' ? 'Partial' : 
                        savedScholarship.scholarship.amountType === 'CUSTOM' ? savedScholarship.scholarship.amount : savedScholarship.scholarship.amountType}
                     </Badge>
-                    <Badge className={getCategoryColor(savedScholarship.scholarship.category)}>
-                      {savedScholarship.scholarship.category.replace('_', ' ')}
-                    </Badge>
+                    {savedScholarship.scholarship.categories.slice(0, 2).map((category, index) => (
+                      <Badge key={index} className={getCategoryColor(category)}>
+                        {category.replace('_', ' ')}
+                      </Badge>
+                    ))}
+                    {savedScholarship.scholarship.categories.length > 2 && (
+                      <Badge className="bg-gray-100 text-gray-700">
+                        +{savedScholarship.scholarship.categories.length - 2} more
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </div>
@@ -265,12 +272,26 @@ export function SavedScholarshipsList({ savedScholarships }: SavedScholarshipsLi
             {/* Tags/Badges */}
             <div className="px-6 pb-4">
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                  {savedScholarship.scholarship.category.replace('_', ' ')}
-                </span>
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                  {savedScholarship.scholarship.degreeLevel}
-                </span>
+                {savedScholarship.scholarship.categories.slice(0, 2).map((category, index) => (
+                  <span key={index} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    {category.replace('_', ' ')}
+                  </span>
+                ))}
+                {savedScholarship.scholarship.categories.length > 2 && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    +{savedScholarship.scholarship.categories.length - 2} more
+                  </span>
+                )}
+                {savedScholarship.scholarship.degreeLevels.slice(0, 2).map((level, index) => (
+                  <span key={index} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                    {level}
+                  </span>
+                ))}
+                {savedScholarship.scholarship.degreeLevels.length > 2 && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                    +{savedScholarship.scholarship.degreeLevels.length - 2} more
+                  </span>
+                )}
                 {isDeadlineClose(savedScholarship.scholarship.deadline) && (
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                     Deadline Soon
@@ -360,11 +381,11 @@ export function SavedScholarshipsList({ savedScholarships }: SavedScholarshipsLi
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-600">Category</p>
-                        <p className="text-gray-900">{selectedScholarship.scholarship.category.replace('_', ' ')}</p>
+                        <p className="text-gray-900">{selectedScholarship.scholarship.categories.map(c => c.replace('_', ' ')).join(', ')}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-600">Degree Level</p>
-                        <p className="text-gray-900">{selectedScholarship.scholarship.degreeLevel}</p>
+                        <p className="text-gray-900">{selectedScholarship.scholarship.degreeLevels.join(', ')}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-600">Deadline</p>

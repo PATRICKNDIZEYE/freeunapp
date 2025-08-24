@@ -66,8 +66,8 @@ export async function GET(
         scholarship: {
           select: {
             title: true,
-            category: true,
-            degreeLevel: true
+            categories: true,
+            degreeLevels: true
           }
         }
       }

@@ -38,8 +38,8 @@ interface Scholarship {
   awardsAvailable: number | null
   amount: string
   amountType: string
-  category: string
-  degreeLevel: string
+  categories: string[]
+  degreeLevels: string[]
   deadline: Date
   contactInfo: string | null
   status: string
@@ -246,12 +246,26 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
                      scholarship.amountType === 'PARTIAL' ? 'Partial' : 
                      scholarship.amountType === 'CUSTOM' ? scholarship.amount : scholarship.amountType}
                   </Badge>
-                  <Badge className={getCategoryColor(scholarship.category)}>
-                    {scholarship.category.replace('_', ' ')}
-                  </Badge>
-                  <Badge variant="outline">
-                    {scholarship.degreeLevel}
-                  </Badge>
+                  {scholarship.categories.slice(0, 2).map((category, index) => (
+                    <Badge key={index} className={getCategoryColor(category)}>
+                      {category.replace('_', ' ')}
+                    </Badge>
+                  ))}
+                  {scholarship.categories.length > 2 && (
+                    <Badge className="bg-gray-100 text-gray-700">
+                      +{scholarship.categories.length - 2} more
+                    </Badge>
+                  )}
+                  {scholarship.degreeLevels.slice(0, 2).map((level, index) => (
+                    <Badge key={index} variant="outline">
+                      {level}
+                    </Badge>
+                  ))}
+                  {scholarship.degreeLevels.length > 2 && (
+                    <Badge variant="outline">
+                      +{scholarship.degreeLevels.length - 2} more
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Stats */}
@@ -262,7 +276,7 @@ export function ScholarshipDetail({ scholarship, user }: ScholarshipDetailProps)
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <GraduationCap className="h-4 w-4" />
-                    <span>{scholarship.degreeLevel}</span>
+                    <span>{scholarship.degreeLevels.join(', ')}</span>
                   </div>
                                   <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Clock className="h-4 w-4" />

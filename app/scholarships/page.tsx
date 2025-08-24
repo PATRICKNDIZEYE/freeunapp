@@ -24,7 +24,29 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
       where: { 
         status: 'ACTIVE'
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        detailedDescription: true,
+        logoUrl: true,
+        referenceUrl: true,
+        eligibilityCriteria: true,
+        applicationProcess: true,
+        qualificationBasis: true,
+        awardsAvailable: true,
+        amount: true,
+        amountType: true,
+        categories: true,
+        degreeLevels: true,
+        deadline: true,
+        contactInfo: true,
+        status: true,
+        approvalStatus: true,
+        views: true,
+        createdAt: true,
+        updatedAt: true,
+        adminId: true,
         admin: {
           select: {
             name: true
@@ -66,19 +88,19 @@ export default async function ScholarshipsPage({ searchParams }: PageProps) {
     filteredScholarships = filteredScholarships.filter(scholarship =>
       scholarship.title.toLowerCase().includes(searchTerm) ||
       scholarship.description.toLowerCase().includes(searchTerm) ||
-      scholarship.category.toLowerCase().includes(searchTerm)
+      scholarship.categories.some(category => category.toLowerCase().includes(searchTerm))
     )
   }
 
   if (searchParams.category && searchParams.category !== 'all') {
     filteredScholarships = filteredScholarships.filter(scholarship =>
-      scholarship.category === searchParams.category
+      scholarship.categories.includes(searchParams.category!)
     )
   }
 
   if (searchParams.degreeLevel && searchParams.degreeLevel !== 'all') {
     filteredScholarships = filteredScholarships.filter(scholarship =>
-      scholarship.degreeLevel === searchParams.degreeLevel
+      scholarship.degreeLevels.includes(searchParams.degreeLevel!)
     )
   }
 

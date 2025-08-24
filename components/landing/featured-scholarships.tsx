@@ -46,8 +46,8 @@ interface Scholarship {
   awardsAvailable: number | null
   amount: string
   amountType: string
-  category: string
-  degreeLevel: string
+  categories: string[]
+  degreeLevels: string[]
   deadline: Date
   contactInfo: string | null
   status: string
@@ -232,12 +232,26 @@ export function FeaturedScholarships({ scholarships }: FeaturedScholarshipsProps
             {/* Tags/Badges */}
             <div className="px-6 pb-4">
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                  {scholarship.category.replace('_', ' ')}
-                </span>
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                  {scholarship.degreeLevel}
-                </span>
+                {scholarship.categories.slice(0, 2).map((category, index) => (
+                  <span key={index} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    {category.replace('_', ' ')}
+                  </span>
+                ))}
+                {scholarship.categories.length > 2 && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    +{scholarship.categories.length - 2} more
+                  </span>
+                )}
+                {scholarship.degreeLevels.slice(0, 2).map((level, index) => (
+                  <span key={index} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                    {level}
+                  </span>
+                ))}
+                {scholarship.degreeLevels.length > 2 && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                    +{scholarship.degreeLevels.length - 2} more
+                  </span>
+                )}
               </div>
             </div>
 

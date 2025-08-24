@@ -18,7 +18,29 @@ export default async function ScholarshipPage({ params }: ScholarshipPageProps) 
   
   const scholarship = await prisma.scholarship.findUnique({
     where: { id: params.id },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      detailedDescription: true,
+      logoUrl: true,
+      referenceUrl: true,
+      eligibilityCriteria: true,
+      applicationProcess: true,
+      qualificationBasis: true,
+      awardsAvailable: true,
+      amount: true,
+      amountType: true,
+      categories: true,
+      degreeLevels: true,
+      deadline: true,
+      contactInfo: true,
+      status: true,
+      approvalStatus: true,
+      views: true,
+      createdAt: true,
+      updatedAt: true,
+      adminId: true,
       admin: {
         select: {
           name: true
@@ -67,12 +89,26 @@ export default async function ScholarshipPage({ params }: ScholarshipPageProps) 
             </nav>
             
             <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="outline">
-                {scholarship.category.replace('_', ' ')}
-              </Badge>
-              <Badge variant="outline">
-                {scholarship.degreeLevel}
-              </Badge>
+              {scholarship.categories.slice(0, 2).map((category, index) => (
+                <Badge key={index} variant="outline">
+                  {category.replace('_', ' ')}
+                </Badge>
+              ))}
+              {scholarship.categories.length > 2 && (
+                <Badge variant="outline">
+                  +{scholarship.categories.length - 2} more
+                </Badge>
+              )}
+              {scholarship.degreeLevels.slice(0, 2).map((level, index) => (
+                <Badge key={index} variant="outline">
+                  {level}
+                </Badge>
+              ))}
+              {scholarship.degreeLevels.length > 2 && (
+                <Badge variant="outline">
+                  +{scholarship.degreeLevels.length - 2} more
+                </Badge>
+              )}
             </div>
           </div>
           

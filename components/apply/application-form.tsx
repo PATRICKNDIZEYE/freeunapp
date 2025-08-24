@@ -36,8 +36,8 @@ interface Scholarship {
   description: string
   amount: string
   amountType: string
-  category: string
-  degreeLevel: string
+  categories: string[]
+  degreeLevels: string[]
   deadline: Date
   admin: {
     name: string | null
@@ -70,9 +70,10 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
     nationality: '',
     
     // Academic Information
-    currentInstitution: '',
+    schoolAttended: '',
     fieldOfStudy: '',
     currentYear: '',
+    marksPercentage: '',
     gpa: '',
     expectedGraduation: '',
     
@@ -97,6 +98,26 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
     additionalInfo: ''
   })
 
+  // GPA conversion function
+  const convertMarksToGPA = (marks: string): string => {
+    const percentage = parseFloat(marks)
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+      return ''
+    }
+    
+    // Rwanda GPA conversion formula
+    if (percentage >= 80) return '4.0'
+    if (percentage >= 75) return '3.7'
+    if (percentage >= 70) return '3.3'
+    if (percentage >= 65) return '3.0'
+    if (percentage >= 60) return '2.7'
+    if (percentage >= 55) return '2.3'
+    if (percentage >= 50) return '2.0'
+    if (percentage >= 45) return '1.7'
+    if (percentage >= 40) return '1.3'
+    return '1.0'
+  }
+
   const steps = [
     { id: 1, title: 'Personal Information', icon: User },
     { id: 2, title: 'Academic Background', icon: BookOpen },
@@ -118,9 +139,10 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
         break
       
       case 2:
-        if (!formData.currentInstitution.trim()) newErrors.currentInstitution = 'Current institution is required'
+        if (!formData.schoolAttended.trim()) newErrors.schoolAttended = 'School attended is required'
         if (!formData.fieldOfStudy.trim()) newErrors.fieldOfStudy = 'Field of study is required'
         if (!formData.currentYear.trim()) newErrors.currentYear = 'Current year is required'
+        if (!formData.marksPercentage.trim()) newErrors.marksPercentage = 'Marks percentage is required'
         // GPA and expected graduation are optional
         break
       
@@ -220,7 +242,7 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
               </div>
               <div className="flex items-center gap-2">
                 <GraduationCap className="h-4 w-4 text-blue-600" />
-                <span className="text-sm">{scholarship.degreeLevel} • {scholarship.category.replace('_', ' ')}</span>
+                <span className="text-sm">{scholarship.degreeLevels.join(', ')} • {scholarship.categories.map(c => c.replace('_', ' ')).join(', ')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-red-600" />
@@ -340,31 +362,76 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="currentInstitution">Current Institution *</Label>
+                  <Label htmlFor="schoolAttended">School Attended *</Label>
                   <Input
-                    id="currentInstitution"
-                    value={formData.currentInstitution}
-                    onChange={(e) => handleInputChange('currentInstitution', e.target.value)}
-                    placeholder="Your current school/university"
-                    className={errors.currentInstitution ? 'border-red-500' : ''}
+                    id="schoolAttended"
+                    value={formData.schoolAttended}
+                    onChange={(e) => handleInputChange('schoolAttended', e.target.value)}
+                    placeholder="Your school/university name"
+                    className={errors.schoolAttended ? 'border-red-500' : ''}
                   />
-                  {errors.currentInstitution && <p className="text-red-500 text-sm mt-1">{errors.currentInstitution}</p>}
+                  {errors.schoolAttended && <p className="text-red-500 text-sm mt-1">{errors.schoolAttended}</p>}
                 </div>
                 
                 <div>
                   <Label htmlFor="fieldOfStudy">Field of Study *</Label>
-                  <Input
-                    id="fieldOfStudy"
-                    value={formData.fieldOfStudy}
-                    onChange={(e) => handleInputChange('fieldOfStudy', e.target.value)}
-                    placeholder="e.g., Computer Science"
-                    className={errors.fieldOfStudy ? 'border-red-500' : ''}
-                  />
+                  <Select onValueChange={(value) => handleInputChange('fieldOfStudy', value)}>
+                    <SelectTrigger className={errors.fieldOfStudy ? 'border-red-500' : ''}>
+                      <SelectValue placeholder="Select field of study" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Computer Science">Computer Science</SelectItem>
+                      <SelectItem value="Software Engineering">Software Engineering</SelectItem>
+                      <SelectItem value="Information Technology">Information Technology</SelectItem>
+                      <SelectItem value="Data Science">Data Science</SelectItem>
+                      <SelectItem value="Artificial Intelligence">Artificial Intelligence</SelectItem>
+                      <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
+                      <SelectItem value="Electrical Engineering">Electrical Engineering</SelectItem>
+                      <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                      <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                      <SelectItem value="Chemical Engineering">Chemical Engineering</SelectItem>
+                      <SelectItem value="Biomedical Engineering">Biomedical Engineering</SelectItem>
+                      <SelectItem value="Medicine">Medicine</SelectItem>
+                      <SelectItem value="Nursing">Nursing</SelectItem>
+                      <SelectItem value="Pharmacy">Pharmacy</SelectItem>
+                      <SelectItem value="Business Administration">Business Administration</SelectItem>
+                      <SelectItem value="Finance">Finance</SelectItem>
+                      <SelectItem value="Accounting">Accounting</SelectItem>
+                      <SelectItem value="Marketing">Marketing</SelectItem>
+                      <SelectItem value="Economics">Economics</SelectItem>
+                      <SelectItem value="Law">Law</SelectItem>
+                      <SelectItem value="Education">Education</SelectItem>
+                      <SelectItem value="Psychology">Psychology</SelectItem>
+                      <SelectItem value="Sociology">Sociology</SelectItem>
+                      <SelectItem value="Political Science">Political Science</SelectItem>
+                      <SelectItem value="International Relations">International Relations</SelectItem>
+                      <SelectItem value="Mathematics">Mathematics</SelectItem>
+                      <SelectItem value="Physics">Physics</SelectItem>
+                      <SelectItem value="Chemistry">Chemistry</SelectItem>
+                      <SelectItem value="Biology">Biology</SelectItem>
+                      <SelectItem value="Environmental Science">Environmental Science</SelectItem>
+                      <SelectItem value="Agriculture">Agriculture</SelectItem>
+                      <SelectItem value="Veterinary Medicine">Veterinary Medicine</SelectItem>
+                      <SelectItem value="Architecture">Architecture</SelectItem>
+                      <SelectItem value="Urban Planning">Urban Planning</SelectItem>
+                      <SelectItem value="Journalism">Journalism</SelectItem>
+                      <SelectItem value="Communication">Communication</SelectItem>
+                      <SelectItem value="Languages">Languages</SelectItem>
+                      <SelectItem value="Arts">Arts</SelectItem>
+                      <SelectItem value="Music">Music</SelectItem>
+                      <SelectItem value="Theater">Theater</SelectItem>
+                      <SelectItem value="Film Studies">Film Studies</SelectItem>
+                      <SelectItem value="Tourism">Tourism</SelectItem>
+                      <SelectItem value="Hospitality Management">Hospitality Management</SelectItem>
+                      <SelectItem value="Sports Science">Sports Science</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                   {errors.fieldOfStudy && <p className="text-red-500 text-sm mt-1">{errors.fieldOfStudy}</p>}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="currentYear">Current Year *</Label>
                   <Select onValueChange={(value) => handleInputChange('currentYear', value)}>
@@ -383,22 +450,6 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
                 </div>
                 
                 <div>
-                  <Label htmlFor="gpa">GPA (Optional)</Label>
-                  <Input
-                    id="gpa"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="4"
-                    value={formData.gpa}
-                    onChange={(e) => handleInputChange('gpa', e.target.value)}
-                    placeholder="e.g., 3.5"
-                    className={errors.gpa ? 'border-red-500' : ''}
-                  />
-                  {errors.gpa && <p className="text-red-500 text-sm mt-1">{errors.gpa}</p>}
-                </div>
-                
-                <div>
                   <Label htmlFor="expectedGraduation">Expected Graduation (Optional)</Label>
                   <Input
                     id="expectedGraduation"
@@ -408,6 +459,44 @@ export function ApplicationForm({ scholarship, user }: ApplicationFormProps) {
                     className={errors.expectedGraduation ? 'border-red-500' : ''}
                   />
                   {errors.expectedGraduation && <p className="text-red-500 text-sm mt-1">{errors.expectedGraduation}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="marksPercentage">Marks Percentage *</Label>
+                  <Input
+                    id="marksPercentage"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    value={formData.marksPercentage}
+                    onChange={(e) => {
+                      const marks = e.target.value
+                      handleInputChange('marksPercentage', marks)
+                      // Auto-convert to GPA
+                      const gpa = convertMarksToGPA(marks)
+                      handleInputChange('gpa', gpa)
+                    }}
+                    placeholder="e.g., 85.5"
+                    className={errors.marksPercentage ? 'border-red-500' : ''}
+                  />
+                  {errors.marksPercentage && <p className="text-red-500 text-sm mt-1">{errors.marksPercentage}</p>}
+                  <p className="text-xs text-gray-500 mt-1">Enter your marks as a percentage (0-100)</p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="gpa">Calculated GPA</Label>
+                  <Input
+                    id="gpa"
+                    type="text"
+                    value={formData.gpa}
+                    readOnly
+                    placeholder="Auto-calculated from marks"
+                    className="bg-gray-50"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">GPA automatically calculated from your marks</p>
                 </div>
               </div>
             </div>

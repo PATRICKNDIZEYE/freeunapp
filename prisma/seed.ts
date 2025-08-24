@@ -50,8 +50,8 @@ async function main() {
       awardsAvailable: 50,
       amount: "Full tuition + $10,000",
       amountType: "FULL" as const,
-      category: "COMPUTER_SCIENCE" as const,
-      degreeLevel: "BACHELOR" as const,
+      categories: ["COMPUTER_SCIENCE", "SOFTWARE_ENGINEERING", "INFORMATION_TECHNOLOGY"],
+      degreeLevels: ["BACHELOR", "MASTER"],
       deadline: new Date('2024-12-15'),
       contactInfo: "generation-google@google.com",
       adminId: admin.id,
@@ -68,8 +68,8 @@ async function main() {
       awardsAvailable: 1500,
       amount: "Full tuition + living expenses",
       amountType: "FULL",
-      category: "OTHER",
-      degreeLevel: "MASTER",
+      categories: ["BUSINESS", "ECONOMICS", "INTERNATIONAL_RELATIONS", "POLITICAL_SCIENCE"],
+      degreeLevels: ["MASTER", "PHD"],
       deadline: new Date('2024-11-01'),
       contactInfo: "info@chevening.org",
       adminId: admin.id,
@@ -86,8 +86,8 @@ async function main() {
       awardsAvailable: 8000,
       amount: "Full funding + stipend",
       amountType: "FULL",
-      category: "OTHER",
-      degreeLevel: "MASTER",
+      categories: ["EDUCATION", "LANGUAGES", "COMMUNICATION", "JOURNALISM"],
+      degreeLevels: ["MASTER", "PHD"],
       deadline: new Date('2024-10-15'),
       contactInfo: "fulbright@state.gov",
       adminId: admin.id,
@@ -104,8 +104,8 @@ async function main() {
       awardsAvailable: 100,
       amount: "Full tuition + $45,000 stipend",
       amountType: "FULL",
-      category: "ENGINEERING",
-      degreeLevel: "PHD",
+      categories: ["ELECTRICAL_ENGINEERING", "MECHANICAL_ENGINEERING", "CIVIL_ENGINEERING", "CHEMICAL_ENGINEERING"],
+      degreeLevels: ["PHD"],
       deadline: new Date('2024-12-01'),
       contactInfo: "gradadmissions@mit.edu",
       adminId: admin.id,
@@ -122,8 +122,8 @@ async function main() {
       awardsAvailable: 100,
       amount: "Full tuition + living expenses",
       amountType: "FULL",
-      category: "OTHER",
-      degreeLevel: "MASTER",
+      categories: ["LAW", "POLITICAL_SCIENCE", "INTERNATIONAL_RELATIONS", "ECONOMICS"],
+      degreeLevels: ["MASTER", "PHD"],
       deadline: new Date('2024-10-01'),
       contactInfo: "rhodes@ox.ac.uk",
       adminId: admin.id,
@@ -140,8 +140,8 @@ async function main() {
       awardsAvailable: 100,
       amount: "Full funding for up to 3 years",
       amountType: "FULL",
-      category: "OTHER",
-      degreeLevel: "PHD",
+      categories: ["BUSINESS_ADMINISTRATION", "PSYCHOLOGY", "SOCIOLOGY", "EDUCATION"],
+      degreeLevels: ["PHD"],
       deadline: new Date('2024-10-12'),
       contactInfo: "knight-hennessy@stanford.edu",
       adminId: admin.id,
@@ -158,8 +158,8 @@ async function main() {
       awardsAvailable: 30,
       amount: "$42,000 per year for 2 years",
       amountType: "PARTIAL",
-      category: "COMPUTER_SCIENCE",
-      degreeLevel: "PHD",
+      categories: ["COMPUTER_SCIENCE", "ARTIFICIAL_INTELLIGENCE", "DATA_SCIENCE", "CYBERSECURITY"],
+      degreeLevels: ["PHD"],
       deadline: new Date('2024-09-15'),
       contactInfo: "phdfellowship@microsoft.com",
       adminId: admin.id,
@@ -176,8 +176,8 @@ async function main() {
       awardsAvailable: 80,
       amount: "Full cost of study",
       amountType: "FULL",
-      category: "OTHER",
-      degreeLevel: "MASTER",
+      categories: ["MATHEMATICS", "PHYSICS", "CHEMISTRY", "BIOLOGY"],
+      degreeLevels: ["MASTER", "PHD"],
       deadline: new Date('2024-12-05'),
       contactInfo: "info@gatescambridge.org",
       adminId: admin.id,
@@ -195,8 +195,6 @@ async function main() {
       data: {
         ...scholarshipData,
         amountType: scholarshipData.amountType as any,
-        category: scholarshipData.category as any,
-        degreeLevel: scholarshipData.degreeLevel as any,
         approvalStatus: 'APPROVED' as const
       },
     })
@@ -242,10 +240,58 @@ async function main() {
     skipDuplicates: true,
   })
 
+  // Create sample resources
+  const resources = [
+    {
+      title: "Scholarship Application Guide 2024",
+      fileUrl: "https://example.com/application-guide.pdf",
+      type: "GUIDE" as const,
+      category: "COMPUTER_SCIENCE" as const,
+      description: "Comprehensive guide for computer science scholarship applications",
+      adminId: admin.id,
+    },
+    {
+      title: "Scholarship Calendar 2024-2025",
+      fileUrl: "https://example.com/scholarship-calendar.pdf",
+      type: "SCHOLARSHIP_CALENDAR" as const,
+      category: "OTHER" as const,
+      description: "Complete calendar of scholarship deadlines for the academic year",
+      adminId: admin.id,
+    },
+    {
+      title: "CV Template for Tech Students",
+      fileUrl: "https://example.com/cv-template.docx",
+      type: "CV_RESUME_TEMPLATE" as const,
+      category: "COMPUTER_SCIENCE" as const,
+      description: "Professional CV template designed for technology students",
+      adminId: admin.id,
+    },
+    {
+      title: "Personal Statement Writing Guide",
+      fileUrl: "https://example.com/personal-statement-guide.pdf",
+      type: "PERSONAL_STATEMENT_GUIDE" as const,
+      category: "OTHER" as const,
+      description: "Step-by-step guide to writing compelling personal statements",
+      adminId: admin.id,
+    }
+  ]
+
+  for (const resourceData of resources) {
+    const exists = await prisma.resource.findFirst({
+      where: { title: resourceData.title, adminId: admin.id }
+    })
+    if (exists) continue
+
+    await prisma.resource.create({
+      data: resourceData,
+    })
+  }
+
   console.log('✅ Database seeded successfully!')
   console.log(`👤 Created admin user: ${admin.email}`)
   console.log(`👤 Created student user: ${student.email}`)
   console.log(`🎓 Created ${scholarships.length} scholarships`)
+  console.log(`📚 Created ${resources.length} resources`)
 }
 
 main()

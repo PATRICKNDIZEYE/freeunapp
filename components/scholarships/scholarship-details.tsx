@@ -33,8 +33,8 @@ interface Scholarship {
   awardsAvailable: number | null
   amount: string
   amountType: string
-  category: string
-  degreeLevel: string
+  categories: string[]
+  degreeLevels: string[]
   deadline: Date
   contactInfo: string | null
   status: string

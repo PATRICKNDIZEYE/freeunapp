@@ -25,7 +25,7 @@ export function Stats({ totalScholarships, totalStudents, totalApplications, tot
       icon: FileText,
       value: totalApplications,
       label: 'Applications',
-      description: 'Total submissions'
+      description: 'Active Applications'
     },
     {
       icon: Award,

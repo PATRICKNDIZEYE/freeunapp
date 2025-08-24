@@ -40,7 +40,29 @@ export default async function ScholarshipDetailPage({ params }: ScholarshipDetai
 
   const scholarship = await prisma.scholarship.findUnique({
     where: { id: params.id },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      detailedDescription: true,
+      logoUrl: true,
+      referenceUrl: true,
+      eligibilityCriteria: true,
+      applicationProcess: true,
+      qualificationBasis: true,
+      awardsAvailable: true,
+      amount: true,
+      amountType: true,
+      categories: true,
+      degreeLevels: true,
+      deadline: true,
+      contactInfo: true,
+      status: true,
+      approvalStatus: true,
+      views: true,
+      createdAt: true,
+      updatedAt: true,
+      adminId: true,
       admin: {
         select: {
           name: true,
@@ -135,12 +157,26 @@ export default async function ScholarshipDetailPage({ params }: ScholarshipDetai
                     <Badge className={getStatusColor(scholarship.status)}>
                       {scholarship.status}
                     </Badge>
-                    <Badge className={getCategoryColor(scholarship.category)}>
-                      {scholarship.category.replace('_', ' ')}
-                    </Badge>
-                    <Badge className="bg-orange-100 text-orange-800">
-                      {scholarship.degreeLevel}
-                    </Badge>
+                    {scholarship.categories.slice(0, 2).map((category, index) => (
+                      <Badge key={index} className={getCategoryColor(category)}>
+                        {category.replace('_', ' ')}
+                      </Badge>
+                    ))}
+                    {scholarship.categories.length > 2 && (
+                      <Badge className="bg-gray-100 text-gray-700">
+                        +{scholarship.categories.length - 2} more
+                      </Badge>
+                    )}
+                    {scholarship.degreeLevels.slice(0, 2).map((level, index) => (
+                      <Badge key={index} className="bg-orange-100 text-orange-800">
+                        {level}
+                      </Badge>
+                    ))}
+                    {scholarship.degreeLevels.length > 2 && (
+                      <Badge className="bg-gray-100 text-gray-700">
+                        +{scholarship.degreeLevels.length - 2} more
+                      </Badge>
+                    )}
                   </div>
 
                   <div>

@@ -2,13 +2,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { TrendingUp, DollarSign, Calendar, Globe } from "lucide-react"
 
 const stats = [
-  {
-    icon: DollarSign,
-    value: "$2.5M+",
-    label: "Total Funding Available",
-    description: "Cumulative scholarship value",
-    color: "text-green-600"
-  },
+  // {
+  //   icon: DollarSign,
+  //   value: "$2.5M+",
+  //   label: "Total Funding Available",
+  //   description: "Cumulative scholarship value",
+  //   color: "text-green-600"
+  // },
   {
     icon: Calendar,
     value: "250+",

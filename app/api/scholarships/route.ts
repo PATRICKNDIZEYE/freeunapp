@@ -32,11 +32,15 @@ export async function GET(req: Request) {
     }
 
     if (category && category !== 'all') {
-      where.category = category
+      where.categories = {
+        has: category
+      }
     }
 
     if (degreeLevel && degreeLevel !== 'all') {
-      where.degreeLevel = degreeLevel
+      where.degreeLevels = {
+        has: degreeLevel
+      }
     }
 
     if (amountType && amountType !== 'all') {
@@ -60,8 +64,8 @@ export async function GET(req: Request) {
         id: true,
         title: true,
         description: true,
-        category: true,
-        degreeLevel: true,
+        categories: true,
+        degreeLevels: true,
         amount: true,
         amountType: true,
         deadline: true,
@@ -135,8 +139,8 @@ export async function POST(req: Request) {
         detailedDescription,
         amount,
         amountType,
-        category: categories[0], // Use first category as primary
-        degreeLevel: degreeLevels[0], // Use first degree level as primary
+        categories,
+        degreeLevels,
         deadline: new Date(deadline),
         eligibilityCriteria,
         applicationProcess,
