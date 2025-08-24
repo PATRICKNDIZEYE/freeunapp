@@ -186,18 +186,26 @@ async function main() {
 
   // Create scholarships (idempotent by title + admin)
   for (const scholarshipData of scholarships) {
-    const exists = await prisma.scholarship.findFirst({
-      where: { title: scholarshipData.title, adminId: admin.id }
-    })
-    if (exists) continue
+    try {
+      const exists = await prisma.scholarship.findFirst({
+        where: { title: scholarshipData.title, adminId: admin.id }
+      })
+      if (exists) {
+        console.log(`⏭️  Skipping existing scholarship: ${scholarshipData.title}`)
+        continue
+      }
 
-    await prisma.scholarship.create({
-      data: {
-        ...scholarshipData,
-        amountType: scholarshipData.amountType as any,
-        approvalStatus: 'APPROVED' as const
-      },
-    })
+      await prisma.scholarship.create({
+        data: {
+          ...scholarshipData,
+          amountType: scholarshipData.amountType as any,
+          approvalStatus: 'APPROVED' as const
+        },
+      })
+      console.log(`✅ Created scholarship: ${scholarshipData.title}`)
+    } catch (error) {
+      console.log(`⚠️  Error creating scholarship ${scholarshipData.title}:`, error)
+    }
   }
 
   // Create some saved scholarships for the student
@@ -277,14 +285,22 @@ async function main() {
   ]
 
   for (const resourceData of resources) {
-    const exists = await prisma.resource.findFirst({
-      where: { title: resourceData.title, adminId: admin.id }
-    })
-    if (exists) continue
+    try {
+      const exists = await prisma.resource.findFirst({
+        where: { title: resourceData.title, adminId: admin.id }
+      })
+      if (exists) {
+        console.log(`⏭️  Skipping existing resource: ${resourceData.title}`)
+        continue
+      }
 
-    await prisma.resource.create({
-      data: resourceData,
-    })
+      await prisma.resource.create({
+        data: resourceData,
+      })
+      console.log(`✅ Created resource: ${resourceData.title}`)
+    } catch (error) {
+      console.log(`⚠️  Error creating resource ${resourceData.title}:`, error)
+    }
   }
 
   console.log('✅ Database seeded successfully!')
