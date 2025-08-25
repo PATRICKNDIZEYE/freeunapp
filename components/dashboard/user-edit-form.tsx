@@ -38,7 +38,6 @@ interface User {
   _count: {
     savedScholarships: number
     scholarships: number
-    applications: number
   }
 }
 
@@ -289,10 +288,7 @@ export function UserEditForm({ user }: UserEditFormProps) {
               <div className="text-2xl font-bold text-green-600">{user._count.scholarships}</div>
               <div className="text-sm text-gray-600">Created Scholarships</div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">{user._count.applications}</div>
-              <div className="text-sm text-gray-600">Applications</div>
-            </div>
+
           </div>
         </CardContent>
       </Card>

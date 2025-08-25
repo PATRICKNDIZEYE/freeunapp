@@ -31,8 +31,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
       _count: {
         select: {
           savedScholarships: true,
-          scholarships: true,
-          applications: true
+          scholarships: true
         }
       },
       savedScholarships: {
@@ -64,21 +63,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           createdAt: 'desc'
         }
       },
-      applications: {
-        include: {
-          scholarship: {
-            select: {
-              id: true,
-              title: true,
-              amount: true
-            }
-          }
-        },
-        take: 5,
-        orderBy: {
-          appliedAt: 'desc'
-        }
-      }
+
     }
   })
 

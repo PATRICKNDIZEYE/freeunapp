@@ -31,11 +31,10 @@ interface UserDetailViewProps {
     profileComplete: boolean
     createdAt: Date
     updatedAt: Date
-    _count: {
-      savedScholarships: number
-      scholarships: number
-      applications: number
-    }
+      _count: {
+    savedScholarships: number
+    scholarships: number
+  }
     savedScholarships: Array<{
       id: string
       savedAt: Date
@@ -53,16 +52,7 @@ interface UserDetailViewProps {
       status: string
       createdAt: Date
     }>
-    applications: Array<{
-      id: string
-      appliedAt: Date
-      status: string
-      scholarship: {
-        id: string
-        title: string
-        amount: string
-      }
-    }>
+    
   }
 }
 
@@ -175,47 +165,12 @@ export function UserDetailView({ user }: UserDetailViewProps) {
                 <div className="text-2xl font-bold text-green-600">{user._count.scholarships}</div>
                 <div className="text-sm text-gray-600">Created Scholarships</div>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{user._count.applications}</div>
-                <div className="text-sm text-gray-600">Applications</div>
-              </div>
+
             </div>
           </CardContent>
         </Card>
 
-        {/* Recent Applications */}
-        {user.applications.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Recent Applications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {user.applications.map((application) => (
-                  <div key={application.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium">{application.scholarship.title}</p>
-                      <p className="text-sm text-gray-500">
-                        Applied: {new Date(application.appliedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={getStatusColor(application.status)}>
-                        {application.status}
-                      </Badge>
-                      <Badge className="bg-green-100 text-green-800">
-                        {application.scholarship.amount}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Created Scholarships */}
         {user.scholarships.length > 0 && (
@@ -339,12 +294,7 @@ export function UserDetailView({ user }: UserDetailViewProps) {
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
             </div>
-            {user._count.applications > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span>{user._count.applications} applications submitted</span>
-              </div>
-            )}
+
             {user._count.scholarships > 0 && (
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-orange-500 rounded-full"></div>

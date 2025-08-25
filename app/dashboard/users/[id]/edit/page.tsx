@@ -31,8 +31,7 @@ export default async function UserEditPage({ params }: UserEditPageProps) {
       _count: {
         select: {
           savedScholarships: true,
-          scholarships: true,
-          applications: true
+          scholarships: true
         }
       }
     }
