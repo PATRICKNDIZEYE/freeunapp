@@ -208,12 +208,7 @@ export function UserEditForm({ user }: UserEditFormProps) {
                 Joined: {new Date(user.createdAt).toLocaleDateString()}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
-                {user._count.applications} applications
-              </span>
-            </div>
+
           </div>
         </CardContent>
       </Card>

@@ -71,10 +71,7 @@ export default async function UserEditPage({ params }: UserEditPageProps) {
               <div className="text-2xl font-bold text-green-600">{user._count.scholarships}</div>
               <div className="text-sm text-gray-600">Created Scholarships</div>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <div className="text-2xl font-bold text-purple-600">{user._count.applications}</div>
-              <div className="text-sm text-gray-600">Applications</div>
-            </div>
+
             <div className="bg-white rounded-lg p-4 border border-gray-200">
               <div className="text-2xl font-bold text-orange-600">
                 {user.approved ? 'Approved' : 'Pending'}

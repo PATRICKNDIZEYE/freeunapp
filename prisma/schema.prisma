@@ -77,7 +77,7 @@ model SavedScholarship {
 
 model Application {
   id                 String            @id @default(cuid())
-  userId             String
+  userId             String?
   scholarshipId      String
   appliedAt          DateTime          @default(now())
   status             ApplicationStatus @default(APPLIED)
@@ -107,7 +107,7 @@ model Application {
   researchExperience String?
   workExperience     String?
   scholarship        Scholarship       @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
-  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("applications")
 }
